@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Reset Verification</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #F8F8FC;
+            color: #333333;
+        }
+
+        .email-wrapper {
+            width: 100%;
+            padding: 40px 0;
+            background-color: #F8F8FC;
+        }
+
+        .email-card {
+            max-width: 500px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+            padding-bottom: 20px;
+        }
+
+        .logo-container {
+            text-align: center;
+            padding: 25px 0;
+            background-color: #ffffff;
+        }
+
+        .logo-image {
+            max-height: 50px;
+            max-width: 200px;
+            display: inline-block;
+        }
+
+        .banner {
+            background-color: #E64040;
+            height: 80px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-circle {
+            width: 80px;
+            height: 80px;
+            background-color: #ffffff;
+            border-radius: 50%;
+            position: absolute;
+            bottom: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+            border: 5px solid #E64040;
+        }
+
+        .icon-circle svg {
+            width: 40px;
+            height: 40px;
+            stroke: #E64040;
+            stroke-width: 1.5;
+            fill: none;
+        }
+
+        .content {
+            padding: 60px 40px 20px 40px;
+            text-align: left;
+        }
+
+        .content h1 {
+            color: #2c3e50;
+            font-size: 26px;
+            font-weight: normal;
+            margin-bottom: 25px;
+            margin-top: 0;
+        }
+
+        .content p {
+            color: #4A5568;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .action-container {
+            text-align: center;
+            margin: 35px 0;
+        }
+
+        .action-button {
+            background-color: #E64040;
+            /* Brighter red to match image */
+            color: #ffffff;
+            font-size: 20px;
+            /* Larger font size */
+            font-weight: 700;
+            /* Bolder font */
+            padding: 16px 48px;
+            /* Taller and wider padding */
+            /* border-radius: 6px; */
+            /* Slightly more rounded corners */
+            display: inline-block;
+            text-decoration: none;
+            letter-spacing: 3px;
+        }
+
+        .divider-container {
+            padding: 0 40px;
+        }
+
+        .divider {
+            height: 1px;
+            background-color: #FFA6A6;
+            width: 100%;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px 40px;
+        }
+
+        .social-icons {
+            margin-bottom: 15px;
+        }
+
+        .social-icons img {
+            width: 26px;
+            height: 26px;
+            margin: 0 4px;
+        }
+
+        .footer p {
+            color: #718096;
+            font-size: 11px;
+            margin: 5px 0;
+        }
+
+        .footer-links {
+            margin-top: 15px;
+            font-size: 11px;
+            font-weight: bold;
+            color: #718096;
+        }
+
+        .footer-links a {
+            color: #718096;
+            text-decoration: none;
+            margin: 0 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="email-wrapper">
+        <div class="email-card">
+
+            <div class="logo-container">
+                <img src="https://assets.jobstore.com/uploads/user/image/2023/1264672/wzApuxx07F/LOGORaffcomm.png"
+                    alt="Raffcomm Logo" class="logo-image">
+            </div>
+
+            <div class="banner">
+                <div class="icon-circle" style="border: none; box-shadow: 0 0 0 4px #F8F8FC; padding:10px;">
+                    <img src="{{ $message->embed(public_path('assets/icon/email.png')) }}" width="50" height="40" alt="Icon">
+                </div>
+            </div>
+
+            <div class="content">
+                <h1>Password Reset verification</h1>
+                <p>Hi {{ $user->name }},</p>
+                <p>You're almost set to start enjoying Document Management System. Simply use the verification code
+                    below to Reset your Password and get started. The code expires in 15 minutes.</p>
+
+                <div class="action-container">
+                    <div class="action-button">{{ $otp }}</div>
+                </div>
+            </div>
+
+            <div class="divider-container">
+                <div class="divider"></div>
+            </div>
+
+            <div class="footer">
+                <div class="social-icons">
+                    <svg viewBox="0 0 24 24" width="26" height="26" fill="#1877F2"
+                        style="margin: 0 4px; vertical-align: middle;">
+                        <path
+                            d="M12 2C6.477 2 2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12c0-5.523-4.477-10-10-10z" />
+                    </svg>
+                    <svg viewBox="0 0 24 24" width="26" height="26" fill="#FFFC00"
+                        style="margin: 0 4px; vertical-align: middle;">
+                        <path
+                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.35 14.8c-.14.24-.39.42-.64.49-.6.16-2.58.53-3.71.53s-3.11-.37-3.71-.53c-.25-.07-.5-.25-.64-.49-.15-.26-.13-.59.04-.83.71-.97 1.05-1.5 1.05-2.02 0-.25-.06-.5-.18-.73-.25-.5-.73-.82-1.26-.82-.12 0-.25.02-.37.06-.54.18-1.07-.3-1.07-.86 0-.22.06-.43.18-.62.4-.66 1.44-1.39 3.19-1.69.17-.03.34-.04.52-.04 1.76 0 3.3.47 4.18 1.14.73.55 1.15 1.34 1.15 2.16 0 .58-.45 1.08-1.02 1.17-.46.07-.82.47-.82.95 0 .41.22.78.58.98.66.36 1.15 1.05 1.15 1.83 0 .48-.22.92-.62 1.32z" />
+                        <path
+                            d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm0-18c-4.411 0-8 3.589-8 8s3.589 8 8 8 8-3.589 8-8-3.589-8-8-8zm4.4 12.3c-.31-.38-1.12-.59-2.05-.62-.05 0-.1-.01-.14-.01l-.22-.01c.21-.19.46-.46.66-.75.36-.51.52-1.03.52-1.54 0-.49-.19-.94-.52-1.28-.62-.64-1.74-1.06-3.13-1.13v-.01c1.23-.33 2.11-.84 2.11-1.35 0-.54-1.06-1.02-2.52-1.02H11.9c-1.46 0-2.52.48-2.52 1.02 0 .5.88 1.02 2.11 1.35v.01c-1.4.07-2.52.49-3.13 1.13-.34.34-.52.79-.52 1.28 0 .5.15 1.03.51 1.54.21.28.46.56.67.75l-.22.01c-.04 0-.09.01-.14.01-.93.03-1.74.24-2.05.62-.27.32-.42.75-.42 1.18 0 .5.2 1.02.6 1.48.51.6 1.37.98 2.37 1.05.47.03 1.01.05 1.62.05s1.15-.02 1.62-.05c1-.07 1.86-.45 2.37-1.05.4-.46.6-1.02.6-1.48 0-.43-.16-.86-.43-1.18z"
+                            fill="#333" />
+                    </svg>
+                    <svg viewBox="0 0 24 24" width="26" height="26" fill="#0077b5"
+                        style="margin: 0 4px; vertical-align: middle;">
+                        <path
+                            d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.32 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.79M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z" />
+                    </svg>
+                    <svg viewBox="0 0 24 24" width="26" height="26" style="margin: 0 4px; vertical-align: middle;">
+                        <defs>
+                            <linearGradient id="ig" x1="0" x2="1" y1="1" y2="0">
+                                <stop offset="0%" stop-color="#f09433" />
+                                <stop offset="25%" stop-color="#e6683c" />
+                                <stop offset="50%" stop-color="#dc2743" />
+                                <stop offset="75%" stop-color="#cc2366" />
+                                <stop offset="100%" stop-color="#bc1888" />
+                            </linearGradient>
+                        </defs>
+                        <path fill="url(#ig)"
+                            d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm3.98-10.169a1.44 1.44 0 1 1-2.88 0 1.44 1.44 0 0 1 2.88 0z" />
+                    </svg>
+                </div>
+                <p>800 Broadway Suit 1500 New York, NY 000423, USA</p>
+                <div class="footer-links">
+                    |<a href="#">Privacy Policy</a>|<a href="#">Contact Details</a>|
+                </div>
+                <!-- <div class="footer-links">
+                    <a href="#">Copyright © 2026 Raffcomm. All rights reserved.</a>
+                </div> -->
+                <p>Copyright © {{ date('Y') }} Raffcomm. All rights reserved.</p>
+            </div>
+
+        </div>
+    </div>
+</body>
+
+</html>
