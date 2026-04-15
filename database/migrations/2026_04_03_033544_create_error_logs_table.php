@@ -10,49 +10,28 @@ return new class extends Migration
     {
         Schema::create('error_logs', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('client_id')->nullable()->constrained('client')->nullOnDelete();
+            $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
 
-            // Foreign keys
-            $table->unsignedBigInteger('client_id')->nullable();
-            $table->unsignedBigInteger('user_id')->nullable();
-
-            // Error details
             $table->text('error_message');
-            $table->string('error_code', 10)->nullable();
+            $table->string('error_code', 10)->nullable()->index();
             $table->string('file_path')->nullable();
             $table->string('class')->nullable();
             $table->string('function')->nullable();
             $table->integer('line')->nullable();
 
-            // Stack trace and context
             $table->longText('stack_trace')->nullable();
             $table->json('context')->nullable();
 
-            // Request information
-            $table->string('ip_address', 45)->nullable();
+            $table->string('ip_address', 45)->nullable()->index();
             $table->string('url', 500)->nullable();
             $table->string('method', 10)->nullable();
             $table->string('user_agent', 500)->nullable();
 
             $table->timestamps();
 
-            // ========== FOREIGN KEY CONSTRAINTS ==========
-            $table->foreign('client_id')
-                ->references('id')
-                ->on('client')
-                ->onDelete('set null');
-
-            $table->foreign('user_id')
-                ->references('id')
-                ->on('users')
-                ->onDelete('set null');
-
-            // ========== INDEXES FOR PERFORMANCE ==========
-            $table->index('client_id');
-            $table->index('user_id');
-            $table->index('error_code');
             $table->index('created_at');
             $table->index(['class', 'function']);
-            $table->index('ip_address');
         });
     }
 

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Public;
 
+use App\Constants\ResponseCode;
+use App\Helper\HelperFunction;
 use App\Http\Controllers\Controller;
 use App\Models\Log\AuditLog;
 use App\Models\Log\ErrorLog;
@@ -10,6 +12,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Class AuditLogController
@@ -179,16 +182,17 @@ class AuditLogController extends Controller
                 'custom2' => 'IP: '.$request->ip(),
             ]);
 
-            return response()->json([
-                'status' => 'success',
-                'data' => $formatted,
+            $encryptedData = HelperFunction::encrypt([
+                'data'       => $formatted,
                 'pagination' => [
                     'current_page' => $logs->currentPage(),
-                    'last_page' => $logs->lastPage(),
-                    'per_page' => $logs->perPage(),
-                    'total' => $logs->total(),
+                    'last_page'    => $logs->lastPage(),
+                    'per_page'     => $logs->perPage(),
+                    'total'        => $logs->total(),
                 ],
             ]);
+
+            return HelperFunction::response($encryptedData, 'Audit logs retrieved successfully', 'success', ResponseCode::SUCCESS, Response::HTTP_OK);
 
         } catch (Exception $e) {
             ErrorLog::log([

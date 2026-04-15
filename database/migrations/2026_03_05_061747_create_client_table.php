@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('client_id')->unique();
             $table->string('client_secret');
             $table->timestamp('expires_in')->nullable();
-            $table->tinyInteger('status')->default(1)->comment('1-active,2-expiry,3-banned');
+            $table->tinyInteger('status')->default(1)->comment('1-active, 2-expiry, 3-banned');
             $table->timestamps();
         });
     }

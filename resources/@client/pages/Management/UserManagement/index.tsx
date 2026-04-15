@@ -20,7 +20,48 @@ import React, { useMemo, useState, useRef, useEffect } from "react";
 import AddUserModal from "@/components/Popup/AddUserModal";
 import EditUserModal from "@/components/Popup/EditUserModal";
 import ViewUserModal from "@/components/Popup/ViewUserModal";
-import { User } from "@/types/user";
+// Interfaces
+export interface User {
+    id: number;
+    name: string;
+    email: string;
+    phone?: string;
+    role_name: string;
+    department_name: string;
+    status: string;
+    dob?: string;
+    address_line_1?: string;
+    address_line_2?: string;
+    address_line_3?: string;
+    country_name?: string;
+    state_name?: string;
+    city_name?: string;
+    pincode?: string;
+    created_at: string;
+    updated_at: string;
+    role_id?: number;
+    department_id?: number;
+    country_id?: number;
+    state_id?: number;
+    city_id?: number;
+}
+
+export interface UserFormData {
+    name: string;
+    email: string;
+    phone?: string;
+    dob?: string;
+    role_id: string;
+    department_id?: string;
+    country_id?: string;
+    state_id?: string;
+    city_id?: string;
+    pincode?: string;
+    address_line_1?: string;
+    address_line_2?: string;
+    address_line_3?: string;
+}
+
 import api from "@/services/ApiService";
 import DatePicker from "react-datepicker";
 import { useAppDispatch, useAppSelector } from "@/stores/hooks";
@@ -126,7 +167,7 @@ const UserManagement: React.FC = () => {
             const isExport = payload.export === true;
 
             const response = await api.post(
-                "/auth/user-management/list",
+                "/auth/user-list",
                 payload,
                 isExport ? { responseType: "blob" } : {},
             );
@@ -166,7 +207,8 @@ const UserManagement: React.FC = () => {
 
                 try {
                    const response = await api.post(
-                       `/auth/user-management/delete/${userId}`,
+                       `/auth/user-delete`,
+                       { id: userId }
                    );
 
                     if (response.data.status === "success") {
@@ -320,7 +362,7 @@ const UserManagement: React.FC = () => {
                         <Users className="text-blue-600" size={28} />
                         User Management
                     </h1>
-                    <p className="text-sm text-slate-500 mt-1">
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
                         Manage system user accounts and access credentials.
                     </p>
                 </div>
@@ -335,9 +377,9 @@ const UserManagement: React.FC = () => {
             </div>
 
             {/* Unified Table & Filter Card */}
-            <div className="flex-1 min-h-0 bg-white dark:bg-slate-900 rounded-md border border-slate-200 dark:border-slate-800 flex flex-col shadow-sm overflow-hidden">
+            <div className="flex-1 min-h-0 bg-white dark:bg-slate-900/50 backdrop-blur-sm rounded-md border border-slate-200 dark:border-slate-800 flex flex-col shadow-sm overflow-hidden transition-colors duration-300">
                 {/* Filter Bar (Integrated) */}
-                <div className="flex items-center gap-4 p-4 border-b border-slate-100 dark:border-slate-800 shrink-0">
+                <div className="flex items-center gap-4 p-4 border-b border-slate-100 dark:border-slate-800 shrink-0 bg-white/50 dark:bg-slate-900/50">
                     <div className="flex items-center gap-2 min-w-[140px]">
                         <Select
                             className="h-10 w-full rounded-md bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs font-medium"
@@ -484,33 +526,33 @@ const UserManagement: React.FC = () => {
                 {/* Users Table Area */}
                 <div className="flex-1 overflow-x-auto overflow-y-auto no-scrollbar m-5">
                     <table className="w-full text-left border-separate border-spacing-0 min-w-[800px]">
-                        <thead className="sticky top-0 z-10 bg-white dark:bg-slate-900">
-                            <tr className="">
-                                <th className="px-6 py-3 text-[11px] uppercase tracking-widest font-bold w-[60px]">
+                        <thead className="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900 shadow-sm transition-colors">
+                            <tr className="text-slate-500 dark:text-slate-200 uppercase tracking-widest font-bold text-[11px]">
+                                <th className="px-6 py-4 w-[60px]">
                                     No.
                                 </th>
-                                <th className="px-4 py-3 text-[11px] uppercase tracking-widest font-bold w-[150px]">
+                                <th className="px-4 py-4 w-[150px]">
                                     Name
                                 </th>
-                                <th className="px-4 py-3 text-[11px] uppercase tracking-widest font-bold w-[200px]">
+                                <th className="px-4 py-4 w-[200px]">
                                     Email
                                 </th>
-                                <th className="px-4 py-3 text-[11px] uppercase tracking-widest font-bold w-[100px]">
+                                <th className="px-4 py-4 w-[100px]">
                                     Role
                                 </th>
-                                <th className="px-4 py-3 text-[11px] uppercase tracking-widest font-bold w-[140px]">
+                                <th className="px-4 py-4 w-[140px]">
                                     Department
                                 </th>
-                                <th className="px-4 py-3 text-[11px] uppercase tracking-widest font-bold w-[100px]">
+                                <th className="px-4 py-4 w-[100px]">
                                     Status
                                 </th>
-                                <th className="px-4 py-3 text-[11px] uppercase tracking-widest font-bold w-[130px]">
+                                <th className="px-4 py-4 w-[130px]">
                                     Created At
                                 </th>
-                                <th className="px-4 py-3 text-[11px] uppercase tracking-widest font-bold w-[130px]">
+                                <th className="px-4 py-4 w-[130px]">
                                     Last Active
                                 </th>
-                                <th className="px-6 py-3 text-[11px] uppercase tracking-widest font-bold w-[100px] text-center">
+                                <th className="px-6 py-4 w-[100px] text-center">
                                     Action
                                 </th>
                             </tr>
@@ -520,9 +562,9 @@ const UserManagement: React.FC = () => {
                                 users.map((user, index) => (
                                     <tr
                                         key={user.id}
-                                        className="group hover:bg-slate-50/30 dark:hover:bg-slate-800/20 transition-all duration-300"
+                                        className="group hover:bg-slate-50/50 dark:hover:bg-slate-800/40 border-b border-slate-100 dark:border-slate-800/50 last:border-0 transition-all duration-300"
                                     >
-                                        <td className="px-6 py-2 text-sm text-slate-400">
+                                        <td className="px-6 py-4 text-sm text-slate-500 dark:text-slate-400">
                                             {(currentPage - 1) * itemsPerPage +
                                                 index +
                                                 1}
@@ -535,25 +577,25 @@ const UserManagement: React.FC = () => {
                                                 {user.name}
                                             </h3>
                                         </td>
-                                        <td className="px-4 py-2">
+                                        <td className="px-4 py-4">
                                             <p
-                                                className="text-sm text-slate-500 truncate max-w-[190px]"
+                                                className="text-sm text-slate-600 dark:text-slate-300 truncate max-w-[190px]"
                                                 title={user.email}
                                             >
                                                 {user.email}
                                             </p>
                                         </td>
-                                        <td className="px-4 py-2">
+                                        <td className="px-4 py-4">
                                             <p
-                                                className="text-sm text-slate-400 uppercase tracking-wider leading-none text-[10px] font-bold truncate max-w-[90px]"
+                                                className="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-widest font-bold truncate max-w-[90px] bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded shadow-sm inline-block"
                                                 title={user.role_name || "N/A"}
                                             >
                                                 {user.role_name || "N/A"}
                                             </p>
                                         </td>
-                                        <td className="px-4 py-2">
+                                        <td className="px-4 py-4">
                                             <p
-                                                className="text-sm text-slate-400 uppercase tracking-wider leading-none text-[10px] font-bold truncate max-w-[130px]"
+                                                className="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-widest font-bold truncate max-w-[130px]"
                                                 title={
                                                     user.department_name ||
                                                     "N/A"
@@ -586,9 +628,9 @@ const UserManagement: React.FC = () => {
                                                 </span>
                                             </span>
                                         </td>
-                                        <td className="px-4 py-2">
+                                        <td className="px-4 py-4 text-slate-400 dark:text-slate-400">
                                             <p
-                                                className="text-sm text-slate-500 dark:text-slate-400 truncate max-w-[120px]"
+                                                className="text-sm font-medium truncate max-w-[120px]"
                                                 title={user.created_at}
                                             >
                                                 {user.created_at}
@@ -650,12 +692,11 @@ const UserManagement: React.FC = () => {
                                         className="px-4 py-20 text-center"
                                     >
                                         <div className="flex flex-col items-center gap-3">
-                                            <div className="p-4 rounded-full bg-slate-50 dark:bg-slate-950">
-                                                <Filter className="h-8 w-8 text-slate-300" />
+                                            <div className="p-4 rounded-full bg-slate-100 dark:bg-slate-800">
+                                                <Filter className="h-8 w-8 text-slate-400 dark:text-slate-500" />
                                             </div>
-                                            <p className="text-slate-400 font-medium">
-                                                No users found matching your
-                                                filters.
+                                            <p className="text-slate-600 dark:text-slate-400 font-medium">
+                                                No users found matching your filters.
                                             </p>
                                             <Button
                                                 variant="ghost"

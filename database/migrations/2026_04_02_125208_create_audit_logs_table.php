@@ -10,43 +10,20 @@ return new class extends Migration
     {
         Schema::create('audit_logs', function (Blueprint $table) {
             $table->id();
-
-            $table->unsignedBigInteger('client_id')->nullable();
-            $table->unsignedBigInteger('user_id')->nullable();
-            $table->unsignedBigInteger('module')->nullable();
-
-            $table->string('action')->nullable();
+            $table->foreignId('client_id')->nullable()->constrained('client')->nullOnDelete();
+            $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->unsignedBigInteger('module')->nullable()->index();
+            $table->string('action')->nullable()->index();
             $table->string('message')->nullable();
-            $table->enum('status', ['1', '2', '3'])
-                ->comment('1 = Success, 2 = Failed, 3 = Pending')
-                ->nullable();
-
+            $table->enum('status', ['1', '2', '3'])->nullable()->index()->comment('1 = Success, 2 = Failed, 3 = Pending');
             $table->string('ip_address')->nullable();
-
             $table->text('old_value')->nullable();
             $table->text('new_value')->nullable();
-
             $table->text('custom1')->nullable();
             $table->text('custom2')->nullable();
-
             $table->timestamps();
 
-            // Foreign keys
-            $table->foreign('client_id')
-                ->references('id')
-                ->on('clients')
-                ->onDelete('set null');
-
-            $table->foreign('user_id')
-                ->references('id')
-                ->on('users')
-                ->onDelete('set null');
-
-            // Indexes for performance
             $table->index(['client_id', 'user_id', 'created_at']);
-            $table->index('action');
-            $table->index('status');
-            $table->index('module');
         });
     }
 

@@ -13,10 +13,7 @@ return new class extends Migration
     {
         Schema::create('contact_us', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')  // Use foreignId, not integer
-                ->nullable()
-                ->constrained('users')  // Specify the table if not default 'users'
-                ->onDelete('set null');
+            $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->string('name');
             $table->string('email');
             $table->text('message');

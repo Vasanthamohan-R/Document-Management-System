@@ -62,16 +62,16 @@ const RoleManagement: React.FC = () => {
             try {
                 setLoading(true);
 
-                const res = await api.post("/auth/roles/list", {
+                const res = await api.post("/auth/role-list", {
                     page,
                     search: searchTerm,
                     searchBy: searchBy,
                     status: statusFilter,
                 });
 
-                if (res.data.status) {
-                    const apiData = res.data.data;
-                    const mapped = apiData.data.map((r: any) => {
+                if (res.data.status === "success") {
+                    const rolesArray: any[] = Array.isArray(res.data.data) ? res.data.data : [];
+                    const mapped = rolesArray.map((r: any) => {
                         const usersCount = Number(r.users_count ?? 0);
                         return {
                             id: r.id,
@@ -85,8 +85,8 @@ const RoleManagement: React.FC = () => {
                     });
 
                     setRoles(mapped);
-                    setTotalPages(apiData.last_page);
-                    setTotalItems(apiData.total);
+                    setTotalPages(res.data.last_page ?? 1);
+                    setTotalItems(res.data.total ?? 0);
                 } else {
                     Alert.Error(res.data.message);
                 }
@@ -108,23 +108,16 @@ const RoleManagement: React.FC = () => {
 
         try {
             // Fetch ALL users
-            const response = await api.post("/auth/user-management/list", {
+            const response = await api.post("/auth/user-list", {
                 page: 1,
                 per_page: 10000, // Get all users at once
             });
-
-            console.log("All users from API:", response.data.data);
 
             if (response.data && response.data.data) {
                 // Filter users by role_id in frontend
                 const filteredUsers = response.data.data.filter(
                     (user: any) => user.role_id === role.id,
                 );
-
-                console.log(
-                    `Found ${filteredUsers.length} users for role ${role.name} (ID: ${role.id})`,
-                );
-                console.log("Filtered users:", filteredUsers);
 
                 const mappedUsers = filteredUsers.map((user: any) => ({
                     id: user.id,
@@ -170,7 +163,7 @@ const RoleManagement: React.FC = () => {
         } else {
             Alert.Confirm("Delete this role?", async () => {
                 try {
-                    const res = await api.post("/auth/roles/delete", { id });
+                    const res = await api.post("/auth/role-delete", { id });
                     if (res.data.status) {
                         Alert.Success("Role deleted successfully");
                         fetchRoles(currentPage);
@@ -184,7 +177,7 @@ const RoleManagement: React.FC = () => {
             });
         }
     };
-    // Add this function inside your component
+    
    const handleDeleteUser = async (userId: number) => {
        // Use custom confirmation dialog
        Alert.Confirm(
@@ -195,7 +188,7 @@ const RoleManagement: React.FC = () => {
 
                try {
                    const response = await api.post(
-                       "/auth/user-management/delete",
+                       "/auth/user-delete",
                        { id: userId },
                    );
 
@@ -231,15 +224,15 @@ const RoleManagement: React.FC = () => {
     }, [currentPage, fetchRoles]);
 
     return (
-        <div className="flex flex-col h-full gap-6">
+        <div className="flex flex-col h-full gap-6 relative">
             {/* Header Section */}
             <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between shrink-0 mb-5">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
+                    <h1 className="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
                         <ShieldCheck className="text-blue-600" size={28} />
                         Role Management
                     </h1>
-                    <p className="text-sm text-slate-500 mt-1">
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
                         Define and manage system roles and their associated
                         permissions.
                     </p>
@@ -251,14 +244,14 @@ const RoleManagement: React.FC = () => {
                     onClick={() => navigate("/role/create")}
                     className="h-11 px-6 rounded-2xl shadow-lg shadow-blue-500/20"
                 >
-                    Create 
+                    Create
                 </Button>
             </div>
 
             {/* Unified Table & Filter Card */}
-            <div className="flex-1 min-h-0 bg-white rounded-md border border-slate-200 flex flex-col shadow-sm overflow-hidden">
+            <div className="flex-1 min-h-0 bg-white dark:bg-slate-900/50 backdrop-blur-sm rounded-md border border-slate-200 dark:border-slate-800 flex flex-col shadow-sm overflow-hidden transition-colors duration-300">
                 {/* Filter Bar */}
-                <div className="flex items-center gap-4 p-4 border-b border-slate-100 shrink-0">
+                <div className="flex items-center gap-4 p-4 border-b border-slate-100 dark:border-slate-800 shrink-0">
                     <div className="flex items-center gap-2 min-w-[140px]">
                         <Select
                             className="h-10 w-full rounded-md bg-white border border-slate-200 text-xs font-medium"
@@ -310,27 +303,27 @@ const RoleManagement: React.FC = () => {
                 {/* Table Area */}
                 <div className="flex-1 overflow-y-auto no-scrollbar m-5">
                     <table className="w-full text-left border-separate border-spacing-0">
-                        <thead className="sticky top-0 z-10">
+                        <thead className="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900 shadow-sm transition-colors uppercase tracking-widest font-bold text-[11px] text-slate-500 dark:text-slate-200">
                             <tr>
-                                <th className="w-1/7 px-6 py-3 text-[11px] uppercase tracking-widest font-bold border-none first:rounded-tl-md">
+                                <th className="w-1/7 px-6 py-4 border-none first:rounded-tl-md">
                                     No.
                                 </th>
-                                <th className="w-1/7 px-4 py-3 text-[11px] uppercase tracking-widest font-bold border-none">
+                                <th className="w-1/7 px-4 py-4 border-none">
                                     Role Name
                                 </th>
-                                <th className="w-1/7 px-4 py-3 text-[11px] uppercase tracking-widest font-bold border-none">
+                                <th className="w-1/7 px-4 py-4 border-none">
                                     Description
                                 </th>
-                                <th className="w-1/7 px-4 py-3 text-[11px] uppercase tracking-widest font-bold border-none text-center">
+                                <th className="w-1/7 px-4 py-4 border-none text-center">
                                     Users
                                 </th>
-                                <th className="w-1/7 px-4 py-3 text-[11px] uppercase tracking-widest font-bold border-none">
+                                <th className="w-1/7 px-4 py-4 border-none">
                                     Status
                                 </th>
-                                <th className="w-1/7 px-4 py-3 text-[11px] uppercase tracking-widest font-bold border-none">
+                                <th className="w-1/7 px-4 py-4 border-none">
                                     Created At
                                 </th>
-                                <th className="w-1/7 px-6 py-3 text-[11px] uppercase tracking-widest font-bold border-none text-right last:rounded-tr-md">
+                                <th className="w-1/7 px-6 py-4 border-none text-right last:rounded-tr-md">
                                     Action
                                 </th>
                             </tr>
@@ -356,17 +349,17 @@ const RoleManagement: React.FC = () => {
                                 roles.map((role, index) => (
                                     <tr
                                         key={role.id}
-                                        className="group hover:bg-slate-50/30 transition-all duration-300"
+                                        className="group hover:bg-slate-50/50 dark:hover:bg-slate-800/40 border-b border-slate-100 dark:border-slate-800/50 last:border-0 transition-all duration-300"
                                     >
-                                        <td className="px-6 py-2 text-sm text-slate-400">
+                                        <td className="px-6 py-4 text-sm text-slate-500 dark:text-slate-400">
                                             {(currentPage - 1) * itemsPerPage +
                                                 index +
                                                 1}
                                         </td>
-                                        <td className="px-4 py-2 font-semibold text-slate-700">
+                                        <td className="px-4 py-4 font-semibold text-slate-700 dark:text-slate-200">
                                             {role.name}
                                         </td>
-                                        <td className="px-4 py-2 text-sm text-slate-500 max-w-xs truncate">
+                                        <td className="px-4 py-4 text-sm text-slate-500 dark:text-slate-400 max-w-xs truncate">
                                             {role.description}
                                         </td>
                                         <td className="px-4 py-2 text-center">
@@ -374,7 +367,7 @@ const RoleManagement: React.FC = () => {
                                                 onClick={() =>
                                                     handleUserClick(role)
                                                 }
-                                                className="bg-slate-100 px-2 py-0.5 rounded-full text-[11px] font-bold text-slate-600 ring-1 ring-slate-200 cursor-pointer hover:bg-slate-200 transition-colors inline-flex items-center gap-1"
+                                                className="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full text-[11px] font-bold text-slate-600 dark:text-slate-300 ring-1 ring-slate-200 dark:ring-slate-700 cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors inline-flex items-center gap-1"
                                             >
                                                 <Users size={10} />
                                                 {role.users} Users
@@ -400,17 +393,13 @@ const RoleManagement: React.FC = () => {
                                                 {role.status}
                                             </span>
                                         </td>
-                                        <td className="px-4 py-2 text-sm text-slate-500">
+                                        <td className="px-4 py-4 text-sm text-slate-500 dark:text-slate-400">
                                             {role.formatted_date}
                                         </td>
                                         <td className="px-6 py-2 text-right">
                                             <div className="flex justify-end gap-1">
                                                 <button
-                                                    onClick={() =>
-                                                        navigate(
-                                                            `/role/edit/${role.id}`,
-                                                        )
-                                                    }
+                                                    onClick={() => navigate(`/role/edit/${role.id}`)}
                                                     className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
                                                     title="Edit Role"
                                                 >
@@ -440,12 +429,11 @@ const RoleManagement: React.FC = () => {
                                         className="px-4 py-20 text-center"
                                     >
                                         <div className="flex flex-col items-center gap-3">
-                                            <div className="p-4 rounded-full bg-slate-50">
-                                                <Filter className="h-8 w-8 text-slate-300" />
+                                            <div className="p-4 rounded-full bg-slate-100 dark:bg-slate-800">
+                                                <Filter className="h-8 w-8 text-slate-400 dark:text-slate-500" />
                                             </div>
-                                            <p className="text-slate-400 font-medium">
-                                                No roles found matching your
-                                                filters.
+                                            <p className="text-slate-600 dark:text-slate-400 font-medium">
+                                                No roles found matching your filters.
                                             </p>
                                             <Button
                                                 variant="ghost"
@@ -603,6 +591,7 @@ const RoleManagement: React.FC = () => {
                 </div>
             )}
         </div>
+
     );
 };
 

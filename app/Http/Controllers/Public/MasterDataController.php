@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Public;
 
 use App\Http\Controllers\Controller;
-use App\Models\Department;
+use App\Models\Auth\Department;
 use App\Models\Location\City;
 use App\Models\Location\Country;
 use App\Models\Location\State;

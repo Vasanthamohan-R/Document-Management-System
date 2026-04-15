@@ -183,7 +183,6 @@ class AuditLog extends Model
         // ✅ Find the integer ID from clients table using hex value
 
         $client = Client::where('client_id', $clientHex)->first();
-        Log::info('Client data', ['client' => $client]);
 
         $clientId = $client ? $client->id : null;
 

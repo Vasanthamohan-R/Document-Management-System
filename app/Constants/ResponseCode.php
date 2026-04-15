@@ -60,6 +60,15 @@ class ResponseCode
     /** Invalid login credentials */
     const INVALID_CREDENTIALS = 1103;
 
+    /** Account inactive */
+    const ACCOUNT_INACTIVE = 1107;
+
+    /** Account suspended */
+    const ACCOUNT_SUSPENDED = 1108;
+
+    /** Account deleted */
+    const ACCOUNT_DELETED = 1109;
+
     /** User login successful */
     const USER_LOGIN_SUCCESS = 1104;
 

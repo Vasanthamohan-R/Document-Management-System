@@ -5,7 +5,7 @@ namespace App\Services;
 use App\Constants\ResponseCode;
 use App\Mail\OtpMail;
 use App\Models\Auth\User;
-use App\Models\Otp;
+use App\Models\Auth\Otp;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;

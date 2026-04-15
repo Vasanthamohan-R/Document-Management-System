@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef } from "react";
+import { useTheme } from "@/hooks/useTheme";
+import { Moon, Sun } from "lucide-react";
 import { motion } from "framer-motion";
 import {
     ChevronLeft,
@@ -22,6 +24,7 @@ import { Alert } from "@/utils/Alert/Alert";
 import axios from "axios";
 
 export default function Landing() {
+    const { isDarkMode, toggleDarkMode } = useTheme();
     // Ref for contact section
     const contactRef = useRef<HTMLDivElement>(null);
 
@@ -184,9 +187,9 @@ export default function Landing() {
     const [authMode, setAuthMode] = useState<"login" | "register" | null>(null);
 
     return (
-        <div className="bg-gray-50">
+        <div className="bg-gray-50 dark:bg-slate-950 transition-colors duration-300">
             {/* Header */}
-            <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-100">
+            <header className="sticky top-0 z-50 bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl border-b border-gray-100 dark:border-slate-800">
                 <div className="max-w-[90%] mx-auto flex items-center justify-between h-20 px-6">
                     {/* Logo */}
                     <div className="flex items-center gap-3 cursor-pointer">
@@ -194,7 +197,7 @@ export default function Landing() {
                     </div>
 
                     {/* Navigation */}
-                    <nav className="hidden md:flex items-center gap-10 text-gray-600 font-medium">
+                    <nav className="hidden md:flex items-center gap-10 text-gray-600 dark:text-gray-300 font-medium">
                         <a className="relative hover:text-brand transition group">
                             Home
                             <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-brand transition-all group-hover:w-full"></span>
@@ -224,7 +227,7 @@ export default function Landing() {
                         {/* Language Dropdown */}
                         <div className="relative" ref={dropdownRef}>
                             <button
-                                className="flex items-center gap-1 border border-gray-300 rounded-full px-3 py-1 hover:bg-gray-100 transition"
+                                className="flex items-center gap-1 border border-gray-300 dark:border-slate-700 rounded-full px-3 py-1 hover:bg-gray-100 dark:hover:bg-slate-800 transition"
                                 onClick={() => setLangDropdown(!langDropdown)}
                             >
                                 <img
@@ -232,17 +235,17 @@ export default function Landing() {
                                     alt={selectedLang.label}
                                     className="w-5 h-5 rounded-full"
                                 />
-                                <span className="font-medium text-gray-700">
+                                <span className="font-medium text-gray-700 dark:text-gray-200">
                                     {selectedLang.label}
                                 </span>
                             </button>
 
                             {langDropdown && (
-                                <div className="absolute right-0 mt-2 w-32 bg-white border border-gray-200 rounded-md shadow-lg z-50">
+                                <div className="absolute right-0 mt-2 w-32 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-md shadow-lg z-50">
                                     {languages.map((lang) => (
                                         <button
                                             key={lang.code}
-                                            className="w-full flex items-center gap-2 px-3 py-2 hover:bg-gray-100 transition"
+                                            className="w-full flex items-center gap-2 px-3 py-2 hover:bg-gray-100 dark:hover:bg-slate-800 transition"
                                             onClick={() =>
                                                 handleLanguageChange(lang)
                                             }
@@ -252,7 +255,7 @@ export default function Landing() {
                                                 alt={lang.label}
                                                 className="w-5 h-5 rounded-full"
                                             />
-                                            <span className="text-gray-700 font-medium">
+                                            <span className="text-gray-700 dark:text-gray-200 font-medium">
                                                 {lang.label}
                                             </span>
                                         </button>
@@ -260,6 +263,14 @@ export default function Landing() {
                                 </div>
                             )}
                         </div>
+
+                        {/* Theme Toggle */}
+                        <button
+                            onClick={toggleDarkMode}
+                            className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-300 dark:border-slate-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800 transition"
+                        >
+                            {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
+                        </button>
 
                         <div className="flex gap-3">
                             <button
@@ -300,7 +311,7 @@ export default function Landing() {
                 {/* Left Arrow */}
                 <button
                     onClick={prev}
-                    className="absolute left-6 top-1/2 -translate-y-1/2 bg-white/80 backdrop-blur p-3 rounded-full shadow hover:scale-110 transition"
+                    className="absolute left-6 top-1/2 -translate-y-1/2 bg-white/80 dark:bg-slate-900/80 backdrop-blur p-3 rounded-full shadow hover:scale-110 transition text-gray-800 dark:text-white"
                 >
                     <ChevronLeft size={22} />
                 </button>
@@ -308,7 +319,7 @@ export default function Landing() {
                 {/* Right Arrow */}
                 <button
                     onClick={next}
-                    className="absolute right-6 top-1/2 -translate-y-1/2 bg-white/80 backdrop-blur p-3 rounded-full shadow hover:scale-110 transition"
+                    className="absolute right-6 top-1/2 -translate-y-1/2 bg-white/80 dark:bg-slate-900/80 backdrop-blur p-3 rounded-full shadow hover:scale-110 transition text-gray-800 dark:text-white"
                 >
                     <ChevronRight size={22} />
                 </button>
@@ -330,20 +341,20 @@ export default function Landing() {
             </section>
 
             {/* Trusted Section */}
-            <section className="py-20 pb-30 bg-gray-100">
+            <section className="py-20 pb-30 bg-gray-100 dark:bg-slate-900 transition-colors duration-300">
                 <div className="max-w-6xl mx-auto px-6 text-center">
                     {/* Title */}
-                    <h2 className="text-5xl md:text-6xl font-extrabold text-gray-800 mb-4">
+                    <h2 className="text-5xl md:text-6xl font-extrabold text-gray-800 dark:text-white mb-4">
                         Trusted by Leading Companies
                     </h2>
 
-                    <p className="text-gray-500 mb-16 text-xl">
+                    <p className="text-gray-500 dark:text-gray-400 mb-16 text-xl">
                         Organizations around the world rely on our platform
                     </p>
 
                     {/* Logo Layout */}
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-10 items-center">
-                        <div className="flex justify-center items-center gap-3 bg-white p-3 rounded-lg text-gray-400 text-xl font-semibold hover:text-gray-800 transition">
+                        <div className="flex justify-center items-center gap-3 bg-white dark:bg-slate-800 p-3 rounded-lg text-gray-400 dark:text-gray-500 text-xl font-semibold hover:text-gray-800 dark:hover:text-white transition">
                             <img
                                 className="h-10 w-10"
                                 src="data:image/png;base64,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"
@@ -389,10 +400,10 @@ export default function Landing() {
             </section>
 
             {/* Features */}
-            <section className="py-24 bg-white">
+            <section className="py-24 bg-white dark:bg-slate-950 transition-colors duration-300">
                 <div className="max-w-7xl mx-auto px-6">
                     {/* Section Title */}
-                    <h2 className="text-4xl font-bold text-center mb-16 text-gray-900">
+                    <h2 className="text-4xl font-bold text-center mb-16 text-gray-900 dark:text-white">
                         Powerful Document Management Features
                     </h2>
 
@@ -433,7 +444,7 @@ export default function Landing() {
                         ].map((feature, i) => (
                             <div
                                 key={i}
-                                className="bg-blue-50 p-8 rounded-3xl transition transform hover:-translate-y-1 border border-transparent hover:border-brand flex flex-col items-center text-center"
+                                className="bg-blue-50 dark:bg-slate-900 p-8 rounded-3xl transition transform hover:-translate-y-1 border border-transparent hover:border-brand flex flex-col items-center text-center"
                             >
                                 {/* Feature Icon */}
                                 <div className="mb-6">
@@ -445,12 +456,12 @@ export default function Landing() {
                                 </div>
 
                                 {/* Feature Title */}
-                                <h3 className="text-xl font-semibold mb-3 text-gray-900">
+                                <h3 className="text-xl font-semibold mb-3 text-gray-900 dark:text-white">
                                     {feature.title}
                                 </h3>
 
                                 {/* Feature Description */}
-                                <p className="text-gray-600">{feature.desc}</p>
+                                <p className="text-gray-600 dark:text-gray-400">{feature.desc}</p>
                             </div>
                         ))}
                     </div>
@@ -458,15 +469,15 @@ export default function Landing() {
             </section>
 
             {/* Workflow */}
-            <section className="py-24 bg-gray-50">
+            <section className="py-24 bg-gray-50 dark:bg-slate-900 transition-colors duration-300">
                 <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center gap-20">
                     {/* Text & Workflow List */}
                     <div>
-                        <h2 className="text-4xl md:text-5xl font-extrabold mb-6 text-gray-900">
+                        <h2 className="text-4xl md:text-5xl font-extrabold mb-6 text-gray-900 dark:text-white">
                             Streamline Your Document Workflow
                         </h2>
 
-                        <p className="text-gray-600 mb-8 text-lg">
+                        <p className="text-gray-600 dark:text-gray-400 mb-8 text-lg">
                             Automate document processes from creation to
                             approval, ensuring faster collaboration, efficiency,
                             and productivity.
@@ -543,45 +554,45 @@ export default function Landing() {
                 </div>
             </section>
 
-            <section className="py-24 bg-gray-50">
+            <section className="py-24 bg-gray-50 dark:bg-slate-900 transition-colors duration-300">
                 <div className="max-w-7xl mx-auto px-6 text-center">
-                    <h2 className="text-4xl font-bold mb-4 text-blue-950">
+                    <h2 className="text-4xl font-bold mb-4 text-blue-950 dark:text-white">
                         Why Choose Us
                     </h2>
-                    <p className="text-lg text-gray-500 mb-12">
+                    <p className="text-lg text-gray-500 dark:text-gray-400 mb-12">
                         Discover the key features that make our document
                         management system efficient, secure, and easy to use.
                     </p>
 
                     {/* Single card container */}
-                    <div className="bg-white p-8 rounded-2xl flex flex-col md:flex-row">
+                    <div className="bg-white dark:bg-slate-800 p-8 rounded-2xl flex flex-col md:flex-row">
                         {/* Feature 1 */}
-                        <div className="flex-1 p-4 md:border-r md:border-gray-200">
+                        <div className="flex-1 p-4 md:border-r md:border-gray-200 dark:border-slate-700">
                             <img
                                 src="https://img.icons8.com/color/96/document.png"
                                 alt="Secure Storage"
                                 className="mx-auto mb-4"
                             />
-                            <h3 className="text-xl font-semibold mb-2">
+                            <h3 className="text-xl font-semibold mb-2 dark:text-white">
                                 Secure Storage
                             </h3>
-                            <p className="text-gray-600">
+                            <p className="text-gray-600 dark:text-gray-400">
                                 Keep all your documents safe and encrypted with
                                 industry-standard security.
                             </p>
                         </div>
 
                         {/* Feature 2 */}
-                        <div className="flex-1 p-4 md:border-r md:border-gray-200">
+                        <div className="flex-1 p-4 md:border-r md:border-gray-200 dark:border-slate-700">
                             <img
                                 src="https://img.icons8.com/color/96/search.png"
                                 alt="Smart Search"
                                 className="mx-auto mb-4"
                             />
-                            <h3 className="text-xl font-semibold mb-2">
+                            <h3 className="text-xl font-semibold mb-2 dark:text-white">
                                 Smart Search
                             </h3>
-                            <p className="text-gray-600">
+                            <p className="text-gray-600 dark:text-gray-400">
                                 Quickly find any file with our AI-powered smart
                                 search and filters.
                             </p>
@@ -594,10 +605,10 @@ export default function Landing() {
                                 alt="Workflow Automation"
                                 className="mx-auto mb-4"
                             />
-                            <h3 className="text-xl font-semibold mb-2">
+                            <h3 className="text-xl font-semibold mb-2 dark:text-white">
                                 Workflow Automation
                             </h3>
-                            <p className="text-gray-600">
+                            <p className="text-gray-600 dark:text-gray-400">
                                 Automate approvals, reviews, and document
                                 lifecycle to save time.
                             </p>
@@ -821,7 +832,7 @@ export default function Landing() {
             </section>
 
             {/* Footer */}
-            <footer className="bg-gray-100 text-gray-400 pt-16 pb-8">
+            <footer className="bg-gray-100 dark:bg-slate-900 text-gray-400 dark:text-gray-400 pt-16 pb-8 border-t border-gray-200 dark:border-slate-800 transition-colors duration-300">
                 <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-5 gap-12">
                     <div className="md:col-span-2">
                         <img src={logo} className="h-15 w-50 mb-4" />
@@ -851,7 +862,7 @@ export default function Landing() {
                     </div>
 
                     <div>
-                        <h3 className="text-blue-900 font-bold mb-4">
+                        <h3 className="text-blue-900 dark:text-white font-bold mb-4">
                             Product
                         </h3>
                         <ul className="space-y-3">
@@ -874,7 +885,7 @@ export default function Landing() {
                     </div>
 
                     <div>
-                        <h3 className="text-blue-900 font-bold mb-4">
+                        <h3 className="text-blue-900 dark:text-white font-bold mb-4">
                             Company
                         </h3>
                         <ul className="space-y-3">
@@ -893,7 +904,7 @@ export default function Landing() {
                     </div>
 
                     <div>
-                        <h3 className="text-blue-900 font-bold mb-4">
+                        <h3 className="text-blue-900 dark:text-white font-bold mb-4">
                             Support
                         </h3>
 
@@ -913,7 +924,7 @@ export default function Landing() {
                     </div>
                 </div>
 
-                <div className="max-w-7xl mx-auto px-6 mt-16 border-t border-gray-800 pt-10 flex flex-col md:flex-row justify-between items-center text-sm">
+                <div className="max-w-7xl mx-auto px-6 mt-16 border-t border-gray-200 dark:border-slate-800 pt-10 flex flex-col md:flex-row justify-between items-center text-sm">
                     <p>
                         © {new Date().getFullYear()} Document Management System
                     </p>

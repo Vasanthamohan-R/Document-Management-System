@@ -30,19 +30,19 @@ interface Document {
 const getIcon = (type: string) => {
   const baseClass = "h-5 w-5 p-1 rounded-md mb-1";
   switch (type.toLowerCase()) {
-    case 'pdf': return <FileText className={`${baseClass} bg-red-50 text-red-600`} />;
-    case 'word': return <FileBox className={`${baseClass} bg-blue-50 text-blue-600`} />;
-    case 'excel': return <FileSpreadsheet className={`${baseClass} bg-green-50 text-green-600`} />;
-    case 'other': return <FileImage className={`${baseClass} bg-purple-50 text-purple-600`} />;
-    default: return <FileText className={`${baseClass} bg-slate-50 text-slate-400`} />;
+    case 'pdf': return <FileText className={`${baseClass} bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400`} />;
+    case 'word': return <FileBox className={`${baseClass} bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400`} />;
+    case 'excel': return <FileSpreadsheet className={`${baseClass} bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400`} />;
+    case 'other': return <FileImage className={`${baseClass} bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400`} />;
+    default: return <FileText className={`${baseClass} bg-slate-50 dark:bg-slate-800 text-slate-400 dark:text-slate-500`} />;
   }
 };
 
 const getStatusBadge = (status: string) => {
   const styles = {
-    approved: 'bg-green-100/50 text-green-700 ring-1 ring-green-500/10',
-    pending: 'bg-orange-100/50 text-orange-700 ring-1 ring-orange-500/10',
-    draft: 'bg-slate-100/50 text-slate-700 ring-1 ring-slate-500/10',
+    approved: 'bg-green-100/50 dark:bg-green-500/10 text-green-700 dark:text-green-400 ring-1 ring-green-500/10 dark:ring-green-500/20',
+    pending: 'bg-orange-100/50 dark:bg-orange-500/10 text-orange-700 dark:text-orange-400 ring-1 ring-orange-500/10 dark:ring-orange-500/20',
+    draft: 'bg-slate-100/50 dark:bg-slate-800 text-slate-700 dark:text-slate-400 ring-1 ring-slate-500/10 dark:ring-slate-800',
   };
 
   return (

@@ -12,7 +12,7 @@ return new class extends Migration
 
         Schema::create('otp', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id');
+            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->enum('type', ['email', 'phone']);
             $table->string('purpose'); // registration, password_reset
             $table->string('target');  // email or phone
@@ -23,10 +23,8 @@ return new class extends Migration
             $table->tinyInteger('attempts')->unsigned()->default(0);
             $table->tinyInteger('wrong_attempts')->unsigned()->default(0);
             $table->tinyInteger('max_attempts')->unsigned()->default(5);
-            $table->timestamp('created_at')->useCurrent();
-            $table->timestamp('updated_at')->useCurrent();
+            $table->timestamps();
 
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->index(['user_id', 'type', 'target', 'purpose', 'status']);
         });
     }

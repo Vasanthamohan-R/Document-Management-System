@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers\Public;
 
+use App\Constants\ResponseCode;
+use App\Helper\HelperFunction;
 use App\Http\Controllers\Controller;
+use App\Models\Auth\User;
 use App\Models\Log\AuditLog;
 use App\Models\Log\ErrorLog;
 use App\Models\Permission\Module;
@@ -14,6 +17,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Class RoleController
@@ -97,17 +101,15 @@ class RoleController extends Controller
                 'custom2' => 'IP: '.$request->ip(),
             ]);
 
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Roles fetched successfully',
-                'data' => [
-                    'data' => $transformedRoles,
-                    'current_page' => $roles->currentPage(),
-                    'last_page' => $roles->lastPage(),
-                    'per_page' => $roles->perPage(),
-                    'total' => $roles->total(),
-                ],
+            $encryptedData = HelperFunction::encrypt([
+                'data'        => $transformedRoles,
+                'current_page' => $roles->currentPage(),
+                'last_page'   => $roles->lastPage(),
+                'per_page'    => $roles->perPage(),
+                'total'       => $roles->total(),
             ]);
+
+            return HelperFunction::response($encryptedData, 'Roles fetched successfully', 'success', ResponseCode::SUCCESS, Response::HTTP_OK);
 
         } catch (Exception $e) {
             ErrorLog::log([
@@ -202,10 +204,9 @@ class RoleController extends Controller
                 'custom2' => 'IP: '.$request->ip(),
             ]);
 
-            return response()->json([
-                'status' => 'success',
-                'data' => $data,
-            ]);
+            $encryptedData = HelperFunction::encrypt($data);
+
+            return HelperFunction::response($encryptedData, 'Permissions schema retrieved successfully', 'success', ResponseCode::SUCCESS, Response::HTTP_OK);
 
         } catch (Exception $e) {
             ErrorLog::log([
@@ -305,11 +306,9 @@ class RoleController extends Controller
                 'custom2' => 'IP: '.$request->ip(),
             ]);
 
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Role created successfully',
-                'data' => $role,
-            ]);
+            $encryptedData = HelperFunction::encrypt($role->toArray());
+
+            return HelperFunction::response($encryptedData, 'Role created successfully', 'success', ResponseCode::SUCCESS, Response::HTTP_CREATED);
 
         } catch (Exception $e) {
             ErrorLog::log([
@@ -389,10 +388,11 @@ class RoleController extends Controller
                 ->select('permissions.key_name', 'role_permissions.enabled')
                 ->get();
 
-            return response()->json([
-                'status' => 'success',
-                'data' => array_merge($role->toArray(), ['permissions' => $permissions]),
-            ]);
+            $encryptedData = HelperFunction::encrypt(
+                array_merge($role->toArray(), ['permissions' => $permissions])
+            );
+
+            return HelperFunction::response($encryptedData, 'Role details retrieved successfully', 'success', ResponseCode::SUCCESS, Response::HTTP_OK);
 
         } catch (Exception $e) {
             ErrorLog::log([
@@ -496,11 +496,9 @@ class RoleController extends Controller
                 'custom2' => 'IP: '.$request->ip(),
             ]);
 
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Role updated successfully',
-                'data' => $role,
-            ]);
+            $encryptedData = HelperFunction::encrypt($role->toArray());
+
+            return HelperFunction::response($encryptedData, 'Role updated successfully', 'success', ResponseCode::SUCCESS, Response::HTTP_OK);
 
         } catch (Exception $e) {
             ErrorLog::log([
@@ -580,10 +578,7 @@ class RoleController extends Controller
                 'custom2' => 'IP: '.$request->ip(),
             ]);
 
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Role permissions synced successfully',
-            ]);
+            return HelperFunction::response(null, 'Role permissions synced successfully', 'success', ResponseCode::SUCCESS, Response::HTTP_OK);
 
         } catch (Exception $e) {
             ErrorLog::log([
@@ -674,10 +669,7 @@ class RoleController extends Controller
                 'custom2' => 'IP: '.$request->ip(),
             ]);
 
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Role deleted successfully',
-            ]);
+            return HelperFunction::response(null, 'Role deleted successfully', 'success', ResponseCode::SUCCESS, Response::HTTP_OK);
 
         } catch (Exception $e) {
             ErrorLog::log([
@@ -699,6 +691,99 @@ class RoleController extends Controller
                 'status' => 'failed',
                 'message' => 'Failed to delete role',
                 'error' => config('app.debug') ? $e->getMessage() : null,
+            ], 500);
+        }
+    }
+
+    /**
+     * Get Users Assigned to a Role
+     *
+     * Retrieves a paginated list of active users belonging to a specific role.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     *
+     * @since 1.0.0
+     */
+    public function getRoleUsers(Request $request)
+    {
+        try {
+            $userId = $request->user() ? $request->user()->id : null;
+
+            if (! $request->role_id) {
+                return response()->json([
+                    'status'  => 'failed',
+                    'message' => 'Role ID is required',
+                ], 422);
+            }
+
+            $role = Role::find($request->role_id);
+
+            if (! $role) {
+                return response()->json([
+                    'status'  => 'failed',
+                    'message' => 'Role not found',
+                ], 404);
+            }
+
+            $users = User::where('role_id', $role->id)
+                ->where('status', '!=', User::STATUS_DELETED)
+                ->latest()
+                ->paginate(10);
+
+            $formattedUsers = $users->map(function ($user) {
+                return [
+                    'id'     => $user->id,
+                    'name'   => $user->name,
+                    'email'  => $user->email,
+                    'status' => $user->status,
+                ];
+            });
+
+            AuditLog::log([
+                'module'   => Module::ROLE_MANAGEMENT,
+                'action'   => 'VIEW_ROLE_USERS',
+                'message'  => 'User viewed role users list',
+                'user_id'  => $userId,
+                'custom1'  => json_encode([
+                    'role_id'       => $role->id,
+                    'role_name'     => $role->name,
+                    'total_records' => $users->total(),
+                ]),
+                'custom2'  => 'IP: ' . $request->ip(),
+            ]);
+
+            $encryptedData = HelperFunction::encrypt([
+                'data'       => $formattedUsers,
+                'pagination' => [
+                    'current_page' => $users->currentPage(),
+                    'last_page'    => $users->lastPage(),
+                    'per_page'     => $users->perPage(),
+                    'total'        => $users->total(),
+                ],
+            ]);
+
+            return HelperFunction::response($encryptedData, 'Role users retrieved successfully', 'success', ResponseCode::SUCCESS, Response::HTTP_OK);
+
+        } catch (Exception $e) {
+            ErrorLog::log([
+                'user_id'       => $request->user() ? $request->user()->id : null,
+                'class'         => __CLASS__,
+                'function'      => __FUNCTION__,
+                'error_message' => 'Failed to fetch role users: ' . $e->getMessage(),
+                'error_code'    => $e->getCode(),
+                'file_path'     => $e->getFile(),
+                'line'          => $e->getLine(),
+                'stack_trace'   => $e->getTraceAsString(),
+                'context'       => json_encode([
+                    'role_id' => $request->role_id,
+                    'error'   => $e->getMessage(),
+                ]),
+            ]);
+
+            return response()->json([
+                'status'  => 'failed',
+                'message' => 'Failed to fetch role users',
+                'error'   => config('app.debug') ? $e->getMessage() : null,
             ], 500);
         }
     }

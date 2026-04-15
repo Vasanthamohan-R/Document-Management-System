@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { History, X, Clock, Eye, EyeOff } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
-import { AuditLogItem } from "@/types/log";
+import { AuditLogItem } from "@/pages/Logs/AuditLogs";
 
 interface ViewLogModalProps {
     isOpen: boolean;
@@ -83,7 +83,7 @@ const ViewLogModal: React.FC<ViewLogModalProps> = ({
                                     {item.label}
                                 </span>
 
-                                <span className="text-slate-700 dark:text-slate-200 break-words whitespace-pre-wrap flex-1">
+                                <span className="text-slate-700 dark:text-slate-200 wrap-break-words whitespace-pre-wrap flex-1">
                                     {item.value ? item.value : "N/A"}
                                 </span>
                             </div>
@@ -125,7 +125,7 @@ const ViewLogModal: React.FC<ViewLogModalProps> = ({
                             .filter(Boolean)
                             .map((item: any, index) => (
                                 <div key={index}>
-                                    <div className="px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 text-sm break-words whitespace-pre-wrap">
+                                    <div className="px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 text-sm wrap-break-words whitespace-pre-wrap">
                                         {item.value}
                                     </div>
                                 </div>

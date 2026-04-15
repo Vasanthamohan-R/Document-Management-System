@@ -8,7 +8,7 @@ use App\Models\Auth\User;
 use App\Models\Log\AuditLog;
 use App\Models\Log\ErrorLog;
 use App\Models\Log\LogMail;
-use App\Models\Otp;
+use App\Models\Auth\Otp;
 use App\Models\Permission\Module;
 use App\Services\OtpService;
 use Carbon\Carbon;
@@ -18,6 +18,10 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\RateLimiter;
+use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Str;
+use App\Helper\HelperFunction;
 
 /**
  * Class AuthController
@@ -71,12 +75,7 @@ class AuthController extends Controller
             ]);
 
             if ($validator->fails()) {
-                return response()->json([
-                    'status' => 'error',
-                    'code' => ResponseCode::VALIDATION_FAILED,
-                    'message' => 'Validation failed',
-                    'errors' => $validator->errors(),
-                ], 422);
+                return HelperFunction::response(null, $validator->errors()->first(), 'error', ResponseCode::VALIDATION_FAILED, Response::HTTP_BAD_REQUEST);
             }
 
             $user = User::create([
@@ -99,12 +98,7 @@ class AuthController extends Controller
             ]);
 
             if (! $user) {
-                return response()->json([
-                    'status' => 'error',
-                    'code' => ResponseCode::SYSTEM_ERROR,
-                    'message' => 'Failed to create user account',
-                    'data' => null,
-                ], 500);
+                return HelperFunction::response(null, 'Failed to create user account', 'error', ResponseCode::SYSTEM_ERROR, Response::HTTP_INTERNAL_SERVER_ERROR);
             }
 
             // Send OTP
@@ -170,19 +164,12 @@ class AuthController extends Controller
                 ]);
             }
 
-            return response()->json([
-                'status' => 'success',
-                'code' => ResponseCode::USER_CREATED,
-                'message' => 'User registered successfully. Please verify your email with the OTP sent.',
-                'data' => [
-                    'expires_at' => $result['expires_at'] ?? null,
-                    'user' => [
-                        'id' => $user->id,
-                        'name' => $user->name,
-                        'email' => $user->email,
-                    ],
-                ],
-            ], 201);
+            $responseData = [
+                'email' => $user->email,
+                'expires_at' => $result['expires_at'] ?? null,
+            ];
+
+            return HelperFunction::response( $responseData, 'User registered successfully. Please verify your email with the OTP sent.', 'success', ResponseCode::USER_CREATED, Response::HTTP_CREATED);
 
         } catch (Exception $e) {
             ErrorLog::log([
@@ -197,12 +184,7 @@ class AuthController extends Controller
                 'context' => json_encode($request->except(['password', 'password_confirmation'])),
             ]);
 
-            return response()->json([
-                'status' => 'error',
-                'code' => ResponseCode::SYSTEM_ERROR,
-                'message' => 'Something went wrong during registration',
-                'errors' => $e->getMessage(),
-            ], 500);
+            return HelperFunction::response( null, 'Something went wrong during registration', 'error', ResponseCode::SYSTEM_ERROR, Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -557,7 +539,6 @@ class AuthController extends Controller
                 $user->email_verified = User::EMAIL_VERIFIED;
             }
 
-            $user->save();
             $user->password = Hash::make($request->password);
             $user->save();
 
@@ -778,15 +759,61 @@ class AuthController extends Controller
             }
 
             $input = $validator->validated();
+            
+            // Unified brute-force protection using rate limiting and intentional delay
+            $throttleKey = Str::lower($input['email']) . '|' . $request->ip();
+            if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
+                $seconds = RateLimiter::availableIn($throttleKey);
+                return response()->json([
+                    'status' => 'error',
+                    'code' => ResponseCode::SYSTEM_ERROR,
+                    'message' => "Too many login attempts. Please try again in {$seconds} seconds.",
+                ], 429);
+            }
+
             $user = User::where('email', $input['email'])->first();
 
             if (! $user) {
+                RateLimiter::hit($throttleKey, 60);
+                usleep(500000);
                 return response()->json([
                     'status' => 'error',
                     'code' => ResponseCode::USER_NOT_FOUND,
                     'message' => 'Invalid credentials',
                     'errors' => '',
                 ], 404);
+            }
+
+            // Consolidate account status checks (prevent enumeration attack)
+            if (in_array($user->status, [
+                User::STATUS_DELETED, 
+                User::STATUS_SUSPENDED, 
+                User::STATUS_INACTIVE,
+                User::STATUS_PASSWORD_UNCHANGED,
+            ])) {
+                Auth::logout();
+                RateLimiter::hit($throttleKey, 300);
+
+                AuditLog::log([
+                    'user_id' => $user->id,
+                    'module' => Module::AUTH_LOGIN,
+                    'action' => 'LOGIN_BLOCKED',
+                    'message' => 'Login blocked - Account status issue',
+                    'status' => AuditLog::STATUS_FAILED,
+                    'old_value' => null,
+                    'new_value' => json_encode([
+                        'status' => $user->status,
+                        'platform' => $input['platform'],
+                    ]),
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent(),
+                ]);
+
+                return response()->json([
+                    'status' => 'error',
+                    'code' => ResponseCode::ACCOUNT_INACTIVE,
+                    'message' => 'Your account not active. Please contact support.',
+                ], 403);
             }
 
             // Check account lock
@@ -836,6 +863,9 @@ class AuthController extends Controller
             if (! Hash::check($input['password'], $user->password)) {
                 $user->false_attempt += 1;
                 $user->save();
+                
+                RateLimiter::hit($throttleKey, 60);
+                usleep(500000);
 
                 AuditLog::log([
                     'user_id' => $user->id,
@@ -976,7 +1006,7 @@ class AuthController extends Controller
                     'line' => __LINE__,
                     'stack_trace' => json_encode(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)),
                     'context' => json_encode([
-                        'email' => $user->email,
+                        'email' => hash('sha256', $user->email),
                         'platform' => $input['platform'],
                         'status_code' => $response->getStatusCode(),
                         'error_response' => $errorBody['message'] ?? $errorBody['error'] ?? 'Unknown error',
@@ -1002,12 +1032,14 @@ class AuthController extends Controller
                 'old_value' => null,
                 'new_value' => json_encode([
                     'platform' => $request->platform,
-                    'email' => $user->email,
+                    'email' => hash('sha256', $user->email),
                     'ip_address' => $request->ip(),
                 ]),
                 'ip_address' => $request->ip(),
                 'user_agent' => $request->userAgent(),
             ]);
+
+            RateLimiter::clear($throttleKey);
 
             return response()->json([
                 'status' => 'success',
@@ -1045,7 +1077,7 @@ class AuthController extends Controller
                 'line' => __LINE__,
                 'stack_trace' => json_encode(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)),
                 'context' => json_encode([
-                    'email' => $request->email ?? 'not provided',
+                    'email' => isset($request->email) ? hash('sha256', $request->email) : 'not provided',
                     'platform' => $request->platform ?? 'unknown',
                     'error' => $e->getMessage(),
                 ]),

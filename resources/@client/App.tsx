@@ -18,8 +18,7 @@ import Archive from "@/pages/DocumentManagement/Archive";
 import Folders from "@/pages/DocumentManagement/Folders";
 import UserManagement from "@/pages/Management/UserManagement";
 import RoleManagement from "@/pages/Management/RoleManagement";
-import CreateRole from "@/pages/Management/CreateRole";
-import EditRole from "@/pages/Management/EditRole";
+import RoleForm from "@/components/RoleForm";
 import ChangePassword from "@/pages/Profile/ChangePassword";
 
 
@@ -58,8 +57,8 @@ const App = () => {
                 <Route path="upload" element={<UploadDocument />} />
                 <Route path="approvals" element={<Approvals />} />
                 <Route path="role" element={<RoleManagement />} />
-                <Route path="role/create" element={<CreateRole />} />
-                <Route path="role/edit/:id" element={<EditRole />} />
+                <Route path="role/create" element={<RoleForm />} />
+                <Route path="role/edit/:id" element={<RoleForm />} />
                 <Route path="archive" element={<Archive />} />
                 <Route path="users" element={<UserManagement />} />
 

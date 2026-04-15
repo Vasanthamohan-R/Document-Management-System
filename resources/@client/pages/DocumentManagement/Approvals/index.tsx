@@ -37,8 +37,8 @@ const ApprovalsPage: React.FC = () => {
         <div className="flex items-center gap-3">
           <FileText className="h-5 w-5 text-blue-500" />
           <div className="flex flex-col">
-            <span className="font-medium text-slate-900">{item.name}</span>
-            <span className="text-xs text-slate-500">{item.id}</span>
+            <span className="font-medium text-slate-900 dark:text-slate-200">{item.name}</span>
+            <span className="text-xs text-slate-500 dark:text-slate-400">{item.id}</span>
           </div>
         </div>
       )
@@ -63,8 +63,8 @@ const ApprovalsPage: React.FC = () => {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Pending Approvals</h1>
-          <p className="text-slate-500">Review and approve documents submitted by your team.</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Pending Approvals</h1>
+          <p className="text-slate-500 dark:text-slate-400">Review and approve documents submitted by your team.</p>
         </div>
         <div className="flex gap-3">
           <Button variant="outline" size="sm">Approval History</Button>
@@ -79,15 +79,15 @@ const ApprovalsPage: React.FC = () => {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-slate-500">Pending Actions</span>
-                <span className="text-sm font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded">12</span>
+                <span className="text-sm font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 px-2 py-0.5 rounded">12</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-slate-500">Approved Today</span>
-                <span className="text-sm font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded">45</span>
+                <span className="text-sm text-slate-500 dark:text-slate-400">Approved Today</span>
+                <span className="text-sm font-bold text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 px-2 py-0.5 rounded">45</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-slate-500">Rejected Today</span>
-                <span className="text-sm font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded">02</span>
+                <span className="text-sm text-slate-500 dark:text-slate-400">Rejected Today</span>
+                <span className="text-sm font-bold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 px-2 py-0.5 rounded">02</span>
               </div>
               <div className="h-px bg-slate-100 w-full" />
               <div className="flex items-center justify-between">
@@ -100,7 +100,7 @@ const ApprovalsPage: React.FC = () => {
             </div>
           </Card>
 
-          <Card title="Quick Actions" className="bg-slate-50">
+          <Card title="Quick Actions" className="bg-slate-50 dark:bg-slate-900/50">
              <div className="space-y-2">
                 <Button variant="ghost" className="w-full justify-start text-xs font-semibold py-2 h-auto" icon={CheckCircle}>Approve All Selection</Button>
                 <Button variant="ghost" className="w-full justify-start text-xs font-semibold py-2 h-auto" icon={MessageSquare}>Request More Info</Button>

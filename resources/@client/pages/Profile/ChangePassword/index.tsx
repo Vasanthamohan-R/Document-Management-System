@@ -137,9 +137,9 @@ const ChangePassword: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
             {/* Simple Navigation */}
-            <div className="border-b border-gray-100 bg-white/50 backdrop-blur-sm sticky top-0 z-10">
+            <div className="border-b border-gray-100 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm sticky top-0 z-10">
                 <div className="max-w-2xl mx-auto px-6 py-4">
                     <button
                         onClick={() => navigate("/profile")}
@@ -161,20 +161,20 @@ const ChangePassword: React.FC = () => {
                     <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-lg mb-4">
                         <Lock className="w-8 h-8 text-white" />
                     </div>
-                    <h1 className="text-3xl font-bold text-gray-900">
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
                         Change Password
                     </h1>
-                    <p className="text-gray-500 mt-2 max-w-md mx-auto">
+                    <p className="text-gray-500 dark:text-slate-400 mt-2 max-w-md mx-auto">
                         Choose a strong password that you don't use elsewhere
                     </p>
                 </div>
 
                 {/* Form Card */}
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div className="bg-white dark:bg-slate-900/50 backdrop-blur-sm rounded-2xl shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden ring-1 ring-slate-100 dark:ring-slate-800">
                     <form onSubmit={handleSubmit} className="p-8 space-y-6">
                         {/* Current Password */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                                 Current Password
                             </label>
                             <div className="relative">
@@ -188,11 +188,11 @@ const ChangePassword: React.FC = () => {
                                     value={formData.current_password}
                                     onChange={handleInputChange}
                                     onBlur={handleBlur}
-                                    className={`w-full px-4 py-3 pr-11 border rounded-xl focus:outline-none focus:ring-2 transition-all ${
+                                    className={`w-full px-4 py-3 pr-11 border rounded-xl focus:outline-none focus:ring-2 transition-all bg-white dark:bg-slate-950 text-gray-900 dark:text-white ${
                                         errors.current_password &&
                                         touched.current_password
                                             ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                                            : "border-gray-200 focus:ring-blue-500 focus:border-blue-500"
+                                            : "border-gray-200 dark:border-slate-800 focus:ring-blue-500 focus:border-blue-500"
                                     }`}
                                     placeholder="Enter current password"
                                 />
@@ -219,7 +219,7 @@ const ChangePassword: React.FC = () => {
 
                         {/* New Password */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                                 New Password
                             </label>
                             <div className="relative">
@@ -231,11 +231,11 @@ const ChangePassword: React.FC = () => {
                                     value={formData.new_password}
                                     onChange={handleInputChange}
                                     onBlur={handleBlur}
-                                    className={`w-full px-4 py-3 pr-11 border rounded-xl focus:outline-none focus:ring-2 transition-all ${
+                                    className={`w-full px-4 py-3 pr-11 border rounded-xl focus:outline-none focus:ring-2 transition-all bg-white dark:bg-slate-950 text-gray-900 dark:text-white ${
                                         errors.new_password &&
                                         touched.new_password
                                             ? "border-red-300 focus:ring-red-500"
-                                            : "border-gray-200 focus:ring-blue-500 focus:border-blue-500"
+                                            : "border-gray-200 dark:border-slate-800 focus:ring-blue-500 focus:border-blue-500"
                                     }`}
                                     placeholder="Enter new password"
                                 />
@@ -285,7 +285,7 @@ const ChangePassword: React.FC = () => {
 
                         {/* Confirm Password */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                                 Confirm New Password
                             </label>
                             <div className="relative">
@@ -299,11 +299,11 @@ const ChangePassword: React.FC = () => {
                                     value={formData.new_password_confirmation}
                                     onChange={handleInputChange}
                                     onBlur={handleBlur}
-                                    className={`w-full px-4 py-3 pr-11 border rounded-xl focus:outline-none focus:ring-2 transition-all ${
+                                    className={`w-full px-4 py-3 pr-11 border rounded-xl focus:outline-none focus:ring-2 transition-all bg-white dark:bg-slate-950 text-gray-900 dark:text-white ${
                                         errors.new_password_confirmation &&
                                         touched.new_password_confirmation
                                             ? "border-red-300 focus:ring-red-500"
-                                            : "border-gray-200 focus:ring-blue-500 focus:border-blue-500"
+                                            : "border-gray-200 dark:border-slate-800 focus:ring-blue-500 focus:border-blue-500"
                                     }`}
                                     placeholder="Confirm new password"
                                 />
@@ -337,8 +337,8 @@ const ChangePassword: React.FC = () => {
                         </div>
 
                         {/* Password Requirements Box */}
-                        <div className="bg-gray-50 rounded-xl p-4 mt-4">
-                            <p className="text-xs font-semibold text-gray-700 mb-3">
+                        <div className="bg-gray-50 dark:bg-slate-900 rounded-xl p-4 mt-4">
+                            <p className="text-xs font-semibold text-gray-700 dark:text-slate-300 mb-3">
                                 Password requirements:
                             </p>
                             <div className="grid grid-cols-2 gap-2 text-xs">
@@ -432,7 +432,7 @@ const ChangePassword: React.FC = () => {
                             <button
                                 type="button"
                                 onClick={() => navigate("/profile")}
-                                className="flex-1 px-4 py-3 border border-gray-200 rounded-xl text-gray-700 font-medium hover:bg-gray-50 hover:border-gray-300 transition-all"
+                                className="flex-1 px-4 py-3 border border-gray-200 dark:border-slate-800 rounded-xl text-gray-700 dark:text-slate-300 font-medium hover:bg-gray-50 dark:hover:bg-slate-800 hover:border-gray-300 dark:hover:border-slate-700 transition-all"
                             >
                                 Cancel
                             </button>

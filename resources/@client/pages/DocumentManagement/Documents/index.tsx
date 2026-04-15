@@ -37,8 +37,8 @@ const DocumentsPage: React.FC = () => {
       {/* Header Section */}
       <div className="flex flex-col gap-6">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">Documents</h1>
-          <p className="text-slate-400 font-medium mt-1">Manage and browse all your documents</p>
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Documents</h1>
+          <p className="text-slate-500 dark:text-slate-400 font-medium mt-1">Manage and browse all your documents</p>
         </div>
 
         {/* Filters & Search Toolbar */}
@@ -48,7 +48,7 @@ const DocumentsPage: React.FC = () => {
             <input 
               type="text" 
               placeholder="Search by filename, tag, metadata..." 
-              className="h-12 w-full rounded-2xl border-none bg-white dark:bg-slate-900 pl-12 pr-4 text-sm font-medium outline-none ring-1 ring-slate-100 dark:ring-slate-800 transition-all focus:ring-blue-500/50"
+              className="h-12 w-full rounded-2xl border-none bg-white dark:bg-slate-950 pl-12 pr-4 text-sm font-medium outline-none ring-1 ring-slate-100 dark:ring-slate-800 transition-all focus:ring-blue-500/50"
             />
           </div>
           
@@ -58,7 +58,7 @@ const DocumentsPage: React.FC = () => {
               options={[{ label: 'All Departments', value: 'all' }]}
             />
             <Select 
-              className="h-12 min-w-[140px] rounded-2xl bg-white dark:bg-slate-900 border-none ring-1 ring-slate-100 dark:ring-slate-800"
+              className="h-12 min-w-[140px] rounded-2xl bg-white dark:bg-slate-950 border-none ring-1 ring-slate-100 dark:ring-slate-800"
               options={[{ label: 'All Types', value: 'all' }]}
             />
             <Select 
@@ -70,9 +70,9 @@ const DocumentsPage: React.FC = () => {
       </div>
 
       {/* Documents Table View */}
-      <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] border-none p-8 ring-1 ring-slate-100 dark:ring-slate-800">
+      <div className="bg-white dark:bg-slate-900/50 backdrop-blur-sm rounded-[2.5rem] border-none p-8 ring-1 ring-slate-100 dark:ring-slate-800 transition-colors duration-300">
         <div className="flex items-center justify-between mb-8">
-          <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">All Documents (8)</h2>
+          <h2 className="text-xl font-bold text-slate-900 dark:text-white">All Documents (8)</h2>
           <div className="flex rounded-xl bg-slate-50 dark:bg-slate-950 p-1">
             <button 
               onClick={() => setViewMode('list')}
@@ -100,10 +100,10 @@ const DocumentsPage: React.FC = () => {
                     <FileText className={cn("h-10 w-10", doc.type === 'PDF' ? "text-red-500" : "text-blue-500")} />
                   </div>
                   <div>
-                    <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 group-hover:text-blue-600 truncate max-w-[160px]">
+                    <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 truncate max-w-[160px]">
                       {doc.name}
                     </h3>
-                    <p className="text-[11px] font-semibold text-slate-400 mt-1 uppercase tracking-wider">{doc.date} • {doc.version}</p>
+                    <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-300 mt-1 uppercase tracking-wider">{doc.date} • {doc.version}</p>
                   </div>
                   <div className="flex gap-2">
                      <Button variant="ghost" size="sm" icon={Download} className="h-9 w-9 p-0 rounded-xl" />

@@ -39,8 +39,8 @@ const ArchivePage: React.FC = () => {
         <div className="flex items-center gap-3">
           <Archive className="h-5 w-5 text-slate-400" />
           <div className="flex flex-col">
-            <span className="font-medium text-slate-700">{item.name}</span>
-            <span className="text-xs text-slate-500">{item.id}</span>
+            <span className="font-medium text-slate-700 dark:text-slate-200">{item.name}</span>
+            <span className="text-xs text-slate-500 dark:text-slate-400">{item.id}</span>
           </div>
         </div>
       )
@@ -62,12 +62,12 @@ const ArchivePage: React.FC = () => {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <div className="rounded-xl bg-slate-100 p-2 text-slate-600">
+          <div className="rounded-xl bg-slate-100 dark:bg-slate-800 p-2 text-slate-600 dark:text-slate-400">
              <Archive className="h-6 w-6" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Document Archive</h1>
-            <p className="text-slate-500">Access and restore outdated or long-term storage documents.</p>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Document Archive</h1>
+            <p className="text-slate-500 dark:text-slate-400">Access and restore outdated or long-term storage documents.</p>
           </div>
         </div>
         <div className="flex gap-3">
@@ -80,8 +80,8 @@ const ArchivePage: React.FC = () => {
         <Card title="Storage Health" icon={Cloud}>
            <div className="mt-4 space-y-4">
               <div className="flex justify-between text-sm">
-                <span className="text-slate-500">Archive Size</span>
-                <span className="font-bold text-slate-900">42.8 GB</span>
+                <span className="text-slate-500 dark:text-slate-400">Archive Size</span>
+                <span className="font-bold text-slate-900 dark:text-white">42.8 GB</span>
               </div>
               <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
                 <div className="h-full bg-blue-500" style={{ width: '65%' }} />
@@ -109,10 +109,10 @@ const ArchivePage: React.FC = () => {
            </div>
         </Card>
 
-        <Card title="Quick Search" className="bg-slate-50 border-slate-200">
+        <Card title="Quick Search" className="bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800">
            <div className="relative mt-2">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-              <input type="text" placeholder="Search archive..." className="h-10 w-full rounded-lg border border-slate-200 bg-white pl-10 pr-4 text-sm" />
+              <input type="text" placeholder="Search archive..." className="h-10 w-full rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 pl-10 pr-4 text-sm text-slate-900 dark:text-white transition-all focus:ring-2 focus:ring-blue-500/50" />
            </div>
         </Card>
       </div>

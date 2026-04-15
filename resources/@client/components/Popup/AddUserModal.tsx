@@ -196,7 +196,7 @@ const AddUserModal: React.FC<Props> = ({ open, onClose, onSuccess }) => {
                 };
 
                 const response = await api.post(
-                    "auth/user-management/create",
+                    "auth/user-create",
                     payload,
                 );
 

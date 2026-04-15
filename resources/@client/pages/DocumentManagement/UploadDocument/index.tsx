@@ -15,8 +15,8 @@ const UploadDocumentPage: React.FC = () => {
             <Button variant="ghost" size="sm" icon={ArrowLeft} className="h-10 w-10 p-0 rounded-full" />
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Upload New Document</h1>
-            <p className="text-slate-500">Add a new document to the system with metadata and workflow options.</p>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Upload New Document</h1>
+            <p className="text-slate-500 dark:text-slate-400">Add a new document to the system with metadata and workflow options.</p>
           </div>
         </div>
       </div>
@@ -31,8 +31,8 @@ const UploadDocumentPage: React.FC = () => {
 
         {/* Sidebar / Instructions */}
         <div className="space-y-6">
-          <Card title="Upload Guidelines" icon={Info} className="bg-blue-50/20 border-blue-100">
-            <ul className="mt-4 space-y-4 text-sm text-slate-600">
+          <Card title="Upload Guidelines" icon={Info} className="bg-blue-50/20 dark:bg-blue-500/5 border-blue-100 dark:border-blue-900/30">
+            <ul className="mt-4 space-y-4 text-sm text-slate-600 dark:text-slate-400">
               <li className="flex gap-3">
                 <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-600">1</span>
                 <span>Select or drag files into the upload area. You can upload multiple files at once.</span>
@@ -52,7 +52,7 @@ const UploadDocumentPage: React.FC = () => {
             </ul>
           </Card>
 
-          <Card title="Need Help?" className="bg-slate-50 border-slate-200">
+          <Card title="Need Help?" className="bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800">
             <p className="text-sm text-slate-500 mb-4">
               If you are unsure about the document category or classification, please contact your department administrator.
             </p>

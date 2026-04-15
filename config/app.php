@@ -124,5 +124,5 @@ return [
     ],
 
     'client_id' => env('VITE_CLIENT_ID', null),
-
+    'client_secret' => env('VITE_CLIENT_SECRET', null),
 ];

@@ -52,7 +52,7 @@ const Table = <T extends Record<string, any>>({
   };
 
   return (
-    <div className="w-full overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950">
+    <div className="w-full overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900/50 backdrop-blur-sm transition-colors duration-300">
       <div className="overflow-x-auto">
         <table className="w-full text-left text-sm text-slate-500 dark:text-slate-400">
           <thead className="bg-slate-50 text-xs font-semibold uppercase text-slate-700 dark:bg-slate-900/50 dark:text-slate-300">

@@ -4,14 +4,16 @@ import Button from "@/components/ui/Button";
 
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
+import { usePermissions } from "@/hooks/usePermissions";
 
 const Dashboard: React.FC = () => {
+  const { hasPermission } = usePermissions();
 
   const stats = [
-    { label: "Departments", value: "5", icon: Users, color: "text-purple-600", bg: "bg-purple-50" },
-    { label: "Members", value: "24", icon: Users, color: "text-blue-600", bg: "bg-blue-50" },
-    { label: "Units", value: "3", icon: Layers, color: "text-indigo-600", bg: "bg-indigo-50" },
-    { label: "Documents", value: "12,097", icon: FileText, color: "text-emerald-600", bg: "bg-emerald-50" }
+    { label: "Departments", value: "5", icon: Users, color: "text-purple-600 dark:text-purple-400", bg: "bg-purple-50 dark:bg-purple-900/20" },
+    { label: "Members", value: "24", icon: Users, color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-50 dark:bg-blue-900/20" },
+    { label: "Units", value: "3", icon: Layers, color: "text-indigo-600 dark:text-indigo-400", bg: "bg-indigo-50 dark:bg-indigo-900/20" },
+    { label: "Documents", value: "12,097", icon: FileText, color: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-50 dark:bg-emerald-900/20" }
   ];
 
   /* ---------------- PIE CHART ---------------- */
@@ -24,7 +26,12 @@ const Dashboard: React.FC = () => {
     },
 
     title: {
-      text: "Browser market shares in March, 2022"
+      text: "Document Distribution",
+      style: {
+        color: 'var(--charts-text)',
+        fontSize: '14px',
+        fontWeight: 'bold'
+      }
     },
 
     tooltip: {
@@ -39,6 +46,11 @@ const Dashboard: React.FC = () => {
           enabled: false
         },
         showInLegend: true
+      }
+    },
+    legend: {
+      itemStyle: {
+        color: 'var(--charts-text)'
       }
     },
 
@@ -108,19 +120,18 @@ const Dashboard: React.FC = () => {
     accessibility: { enabled: false }
   };
 
+  const isDark = typeof document !== 'undefined' ? document.documentElement.classList.contains('dark') : false;
+  const chartTextColor = isDark ? '#cbd5e1' : '#475569';
+
   return (
-    <div className="space-y-10 max-w-[1600px] mx-auto pb-10">
+    <div className="space-y-8" style={{ '--charts-text': chartTextColor } as React.CSSProperties}>
 
-      {/* Header */}
-
-      <div>
-        <h1 className="text-3xl font-bold text-slate-800 dark:text-white">
-          Dashboard
-        </h1>
-
-        <p className="text-sm text-slate-500 mt-1">
-          Monitor documents, approvals and workflow activities
-        </p>
+      {/* Page Header */}
+      <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between mb-8">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Dashboard Overview</h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">Real-time repository statistics and insights.</p>
+        </div>
       </div>
 
       {/* Stats + Upload */}
@@ -133,19 +144,19 @@ const Dashboard: React.FC = () => {
 
             <div
               key={i}
-              className="bg-white dark:bg-slate-900 rounded-2xl p-5 ring-1 ring-slate-100 dark:ring-slate-800 flex items-center gap-4"
+              className="bg-white dark:bg-slate-900/50 backdrop-blur-sm rounded-2xl p-5 ring-1 ring-slate-100 dark:ring-slate-800 flex items-center gap-4 transition-colors duration-300"
             >
 
               <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${stat.bg} ${stat.color}`}>
                 <stat.icon size={22} />
               </div>
 
-              <div>
-                <p className="text-xs font-semibold text-slate-400 uppercase">
+              <div className="ml-4">
+                <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
                   {stat.label}
                 </p>
 
-                <p className="text-lg font-bold text-slate-800 dark:text-white">
+                <p className="text-xl font-bold text-slate-800 dark:text-white">
                   {stat.value}
                 </p>
               </div>
@@ -175,7 +186,8 @@ const Dashboard: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
-        <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 ring-1 ring-slate-100 dark:ring-slate-800">
+        {hasPermission('dashboard.view_document_summary') && (
+        <div className="bg-white dark:bg-slate-900/50 backdrop-blur-sm rounded-2xl p-6 ring-1 ring-slate-100 dark:ring-slate-800 transition-colors duration-300">
 
           <h2 className="text-sm font-bold text-slate-800 dark:text-white uppercase mb-4">
             Documents Summary
@@ -184,8 +196,10 @@ const Dashboard: React.FC = () => {
           <HighchartsReact highcharts={Highcharts} options={pieOptions} />
 
         </div>
+        )}
 
-        <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 ring-1 ring-slate-100 dark:ring-slate-800">
+        {hasPermission('dashboard.view_department_flow') && (
+        <div className="bg-white dark:bg-slate-900/50 backdrop-blur-sm rounded-2xl p-6 ring-1 ring-slate-100 dark:ring-slate-800 transition-colors duration-300">
 
           <h2 className="text-sm font-bold text-slate-800 dark:text-white uppercase mb-4">
             Document Flow by Department
@@ -194,12 +208,14 @@ const Dashboard: React.FC = () => {
           <HighchartsReact highcharts={Highcharts} options={barOptions} />
 
         </div>
+        )}
 
       </div>
 
       {/* Pending Table */}
 
-      <div className="bg-white dark:bg-slate-900 rounded-2xl p-8 ring-1 ring-slate-100 dark:ring-slate-800">
+      {hasPermission('dashboard.view_pending_documents') && (
+      <div className="bg-white dark:bg-slate-900/50 backdrop-blur-sm rounded-2xl p-8 ring-1 ring-slate-100 dark:ring-slate-800 transition-colors duration-300">
 
         <div className="flex items-center justify-between mb-6">
 
@@ -217,15 +233,15 @@ const Dashboard: React.FC = () => {
 
           <table className="w-full text-left">
 
-            <thead className="text-sm text-slate-400">
+            <thead className="text-[11px] uppercase tracking-widest font-bold text-slate-500 dark:text-slate-400 border-b border-slate-100 dark:border-slate-800/50">
 
               <tr>
-                <th className="pb-4">No.</th>
-                <th className="pb-4">File Name</th>
-                <th className="pb-4">Class</th>
-                <th className="pb-4">Due Date</th>
-                <th className="pb-4">Owner</th>
-                <th className="pb-4 text-right">Action</th>
+                <th className="pb-4 pt-2">No.</th>
+                <th className="pb-4 pt-2">File Name</th>
+                <th className="pb-4 pt-2">Class</th>
+                <th className="pb-4 pt-2">Due Date</th>
+                <th className="pb-4 pt-2">Owner</th>
+                <th className="pb-4 pt-2 text-right">Action</th>
               </tr>
 
             </thead>
@@ -239,23 +255,23 @@ const Dashboard: React.FC = () => {
                   className="hover:bg-slate-50 dark:hover:bg-slate-800 border-none"
                 >
 
-                  <td className="py-2">
+                  <td className="py-4">
                     {i + 1}
                   </td>
 
-                  <td className="py-2">
-                    Application for leave
+                  <td className="py-4">
+                    <span className="font-semibold text-slate-700 dark:text-slate-200">Legal_Agreem...</span>
                   </td>
 
-                  <td className="py-2">
-                    Proposal
+                  <td className="py-4">
+                    <span className="px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-[10px] font-bold uppercase">Contract</span>
                   </td>
 
-                  <td className="py-2">
-                    12-Jan-2018
+                  <td className="py-4 text-slate-500 dark:text-slate-400">
+                    Oct 24, 2024
                   </td>
 
-                  <td className="py-2 flex items-center gap-2">
+                  <td className="py-4 text-slate-600 dark:text-slate-300 flex items-center gap-2">
                     <img
                       src={`https://i.pravatar.cc/100?img=${i + 10}`}
                       className="w-8 h-8 rounded-full"
@@ -263,7 +279,7 @@ const Dashboard: React.FC = () => {
                     Olumide Mich..
                   </td>
 
-                  <td className="py-2 text-right text-blue-600 font-semibold">
+                  <td className="py-4 text-right text-blue-600 font-semibold">
                     Review
                   </td>
 
@@ -278,6 +294,7 @@ const Dashboard: React.FC = () => {
         </div>
 
       </div>
+      )}
 
     </div>
   );

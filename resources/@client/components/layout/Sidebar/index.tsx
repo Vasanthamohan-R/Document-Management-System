@@ -296,7 +296,9 @@ const Sidebar: React.FC<SidebarProps> = ({
                 }}
                 transition={{ duration: 0.3 }}
                 className={cn(
-                    "fixed inset-y-0 left-0 z-50 flex flex-col border-r border-white/10 bg-gradient-to-b from-[#33459b] via-[#2a3a8a] to-[#1e2a6a] text-white shadow-2xl transition-all duration-300 ease-in-out",
+                    "fixed inset-y-0 left-0 z-50 flex flex-col border-r border-white/10 shadow-2xl transition-all duration-300 ease-in-out",
+                    "bg-gradient-to-b from-[#33459b] via-[#2a3a8a] to-[#1e2a6a] text-white",
+                    "dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 dark:border-slate-800",
                     isMobile
                         ? "w-72"
                         : isCollapsed
@@ -322,7 +324,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                                         className="h-10 w-10 object-contain drop-shadow-md"
                                         alt="Logo"
                                     />
-                                    <div className="absolute -inset-1 bg-white/20 blur-sm rounded-full -z-10" />
+                                    <div className="absolute bg-white/20 blur-sm rounded-full -z-10" />
                                 </div>
                                 <span className="text-xl font-extrabold tracking-tight uppercase bg-clip-text text-transparent bg-gradient-to-r from-white to-white/70">
                                     RAFFTECH

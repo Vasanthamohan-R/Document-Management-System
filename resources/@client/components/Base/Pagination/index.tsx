@@ -67,7 +67,7 @@ const Pagination = ({
         >
             {/* Left side - Results info */}
             {totalItems > 0 && (
-                <div className="text-sm text-slate-500">
+                <div className="text-sm text-slate-500 dark:text-slate-400 font-medium">
                     Results: {startItem} - {endItem} of {totalItems}
                 </div>
             )}

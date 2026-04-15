@@ -60,7 +60,7 @@ const Modal: React.FC<ModalProps> = ({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
             className={cn(
-              'relative z-50 w-full overflow-hidden rounded-xl bg-white shadow-2xl dark:bg-slate-950',
+              'relative z-50 w-full overflow-hidden rounded-xl bg-white shadow-2xl dark:bg-slate-900 ring-1 ring-slate-200 dark:ring-slate-800',
               sizes[size],
               className
             )}

@@ -15,15 +15,30 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
+        // Location Seeders
         $this->call([
-            ModulePermissionSeeder::class,
-            RoleSeeder::class,
-            SuperAdminPermissionSeeder::class,
-            PageAccessPermissionSeeder::class,
-            StateTableSeeder::class,
-            CitySeeder::class,
+            Location\CountrySeeder::class,
+            Location\StateSeeder::class,
+            Location\CitySeeder::class,
+        ]);
+
+        // Auth & Organizational Seeders
+        $this->call([
+            Auth\ClientSeeder::class,
+            Auth\DepartmentSeeder::class,
+        ]);
+
+        // Permission & Role Seeders
+        $this->call([
+            Permission\ModulePermissionSeeder::class,
+            Permission\DashboardWidgetPermissionSeeder::class,
+            Permission\RoleSeeder::class,
+            Permission\SuperAdminPermissionSeeder::class,
+        ]);
+
+        // User Seeders
+        $this->call([
+            Auth\UserSeeder::class,
         ]);
     }
 }

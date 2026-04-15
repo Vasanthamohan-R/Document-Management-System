@@ -13,7 +13,7 @@ import {
 import api from "@/services/ApiService";
 import { Alert } from "@/utils/Alert/Alert";
 import DatePicker from "react-datepicker";
-import { User } from "@/types/user";
+import { User } from "@/pages/Management/UserManagement";
 
 // ========== INTERFACES ==========
 interface EditUserFormData {
@@ -198,7 +198,7 @@ const EditUserModal: React.FC<Props> = ({ open, user, onClose }) => {
                 );
                 console.log("Payload status:", statusValue);
                 const response = await api.post(
-                    `/auth/user-management/update/${user?.id}`,
+                    "/auth/user-update",
                     payload,
                 );
 

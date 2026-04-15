@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Helper\Export;
+use App\Helper\HelperFunction;
 use App\Http\Controllers\Controller;
 use App\Mail\TemporaryPasswordMail;
 use App\Models\Auth\User;
@@ -21,6 +22,9 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\Response;
+use App\Constants\ResponseCode;
+
 
 /**
  * Class UserController
@@ -226,17 +230,19 @@ class UserController extends Controller
                 'user_agent' => $request->userAgent(),
             ]);
 
-            return response()->json([
-                'status' => 'success', 
-                'message' => 'Users retrieved successfully',
-                'data' => $formattedUsers,
+            $encryptedData = HelperFunction::encrypt([
+                'data'       => $formattedUsers,
                 'pagination' => [
                     'current_page' => $users->currentPage(),
-                    'last_page' => $users->lastPage(),
-                    'per_page' => $users->perPage(),
-                    'total' => $users->total(),
+                    'last_page'    => $users->lastPage(),
+                    'per_page'     => $users->perPage(),
+                    'total'        => $users->total(),
                 ],
-            ], 200);
+            ]);
+
+            return HelperFunction::response($encryptedData, 'Users retrieved successfully', 'success', ResponseCode::SUCCESS, Response::HTTP_OK);
+
+
 
         } catch (Exception $e) {
             ErrorLog::log([
@@ -254,11 +260,7 @@ class UserController extends Controller
                 ]),
             ]);
 
-            return response()->json([
-                'status' => 'failed',
-                'message' => 'Failed to fetch users',
-                'error' => $e->getMessage(),
-            ], 500);
+            return HelperFunction::response( null, 'Failed to fetch users', 'error', ResponseCode::SYSTEM_ERROR, Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -379,19 +381,19 @@ class UserController extends Controller
                 'user_agent' => $request->userAgent(),
             ]);
 
-            return response()->json([
-                'status' => 'success',
-                'message' => 'User created successfully',
-                'data' => [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'phone' => $user->phone,
-                    'role' => $user->role ? $user->role->name : null,
-                    'department' => $user->department ? $user->department->name : null,
-                    'temporary_password' => $temporaryPassword, // Remove in production
-                ],
-            ], 201);
+            $responseData = [
+                'id'                 => $user->id,
+                'name'               => $user->name,
+                'email'              => $user->email,
+                'phone'              => $user->phone,
+                'role'               => $user->role ? $user->role->name : null,
+                'department'         => $user->department ? $user->department->name : null,
+                'temporary_password' => $temporaryPassword,
+            ];
+
+            $encryptedData = HelperFunction::encrypt($responseData);
+
+            return HelperFunction::response($encryptedData, 'User created successfully', 'success', ResponseCode::SUCCESS, Response::HTTP_CREATED);
 
         } catch (Exception $e) {
             ErrorLog::log([
@@ -426,42 +428,43 @@ class UserController extends Controller
      *
      * @since 1.0.0
      */
-    public function updateUserById(Request $request,$id): JsonResponse
+    public function updateUserById(Request $request): JsonResponse
     {
         try {
+            $id        = $request->id;
             $validator = Validator::make(
-                array_merge($request->all(), ['id' => $id]),
-            [
-                'id' => 'required|exists:users,id',
-                'name' => 'required|string|max:255',
-                'email' => 'required|email|unique:users,email,' . $id,
-                'phone' => 'nullable|string|max:20',
-                'dob' => 'nullable|date',
-                'role_id' => 'required|exists:roles,id',
-                'department_id' => 'nullable|exists:department,id',
-                'country_id' => 'nullable|exists:country,id',
-                'state_id' => 'nullable|exists:state,id',
-                'city_id' => 'nullable|exists:city,id',
-                'pincode' => 'nullable|string|max:20',
-                'address_line_1' => 'nullable|string|max:255',
-                'address_line_2' => 'nullable|string|max:255',
-                'address_line_3' => 'nullable|string|max:255',
-                'status' => 'nullable|in:1,2,4',
-            ]
+                $request->all(),
+                [
+                    'id'             => 'required|exists:users,id',
+                    'name'           => 'required|string|max:255',
+                    'email'          => 'required|email|unique:users,email,' . $id,
+                    'phone'          => 'nullable|string|max:20',
+                    'dob'            => 'nullable|date',
+                    'role_id'        => 'required|exists:roles,id',
+                    'department_id'  => 'nullable|exists:department,id',
+                    'country_id'     => 'nullable|exists:country,id',
+                    'state_id'       => 'nullable|exists:state,id',
+                    'city_id'        => 'nullable|exists:city,id',
+                    'pincode'        => 'nullable|string|max:20',
+                    'address_line_1' => 'nullable|string|max:255',
+                    'address_line_2' => 'nullable|string|max:255',
+                    'address_line_3' => 'nullable|string|max:255',
+                    'status'         => 'nullable|in:1,2,4',
+                ]
             );
 
             if ($validator->fails()) {
                 return response()->json([
-                    'status' => 'failed',
+                    'status'  => 'failed',
                     'message' => 'Validation failed',
-                    'errors' => $validator->errors(),
+                    'errors'  => $validator->errors(),
                 ], 422);
             }
 
-          $user = User::find($id); 
+            $user = User::find($id);
             if (! $user) {
                 return response()->json([
-                    'status' => 'failed',
+                    'status'  => 'failed',
                     'message' => 'User not found',
                 ], 404);
             }
@@ -469,67 +472,56 @@ class UserController extends Controller
             $oldData = $user->toArray();
 
             $user->update([
-                'name' => $request->name,
-                'email' => $request->email,
-                'phone' => $request->phone,
-                'dob' => $request->dob,
-                'role_id' => $request->role_id,
-                'department_id' => $request->department_id,
-                'country_id' => $request->country_id,
-                'state_id' => $request->state_id,
-                'city_id' => $request->city_id,
-                'pincode' => $request->pincode,
+                'name'           => $request->name,
+                'email'          => $request->email,
+                'phone'          => $request->phone,
+                'dob'            => $request->dob,
+                'role_id'        => $request->role_id,
+                'department_id'  => $request->department_id,
+                'country_id'     => $request->country_id,
+                'state_id'       => $request->state_id,
+                'city_id'        => $request->city_id,
+                'pincode'        => $request->pincode,
                 'address_line_1' => $request->address_line_1,
                 'address_line_2' => $request->address_line_2,
                 'address_line_3' => $request->address_line_3,
-                'status' => $request->status ?? $user->status,
+                'status'         => $request->status ?? $user->status,
             ]);
 
             AuditLog::log([
-                'user_id' => $request->user() ? $request->user()->id : null,
-                'module' => Module::USER_MANAGEMENT,
-                'action' => 'UPDATE_USER',
-                'message' => 'User updated successfully',
-                'status' => AuditLog::STATUS_SUCCESS,
-                'old_value' => json_encode($oldData),
-                'new_value' => json_encode($request->except(['_token'])),
+                'user_id'    => $request->user() ? $request->user()->id : null,
+                'module'     => Module::USER_MANAGEMENT,
+                'action'     => 'UPDATE_USER',
+                'message'    => 'User updated successfully',
+                'status'     => AuditLog::STATUS_SUCCESS,
+                'old_value'  => json_encode($oldData),
+                'new_value'  => json_encode($request->except(['_token'])),
                 'ip_address' => $request->ip(),
                 'user_agent' => $request->userAgent(),
             ]);
 
-            return response()->json([
-                'status' => 'success',
-                'message' => 'User updated successfully',
-                'data' => [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                ],
-            ], 200);
+            return HelperFunction::response( null, 'User updated successfully', 'success', ResponseCode::SUCCESS, Response::HTTP_OK);
 
         } catch (Exception $e) {
             ErrorLog::log([
-                'user_id' => $request->user() ? $request->user()->id : null,
-                'error_message' => 'Unexpected error in user update: '.$e->getMessage(),
-                'error_code' => $e->getCode(),
-                'file_path' => $e->getFile(),
-                'class' => __CLASS__,
-                'function' => __FUNCTION__,
-                'line' => $e->getLine(),
-                'stack_trace' => $e->getTraceAsString(),
-                'context' => json_encode([
-                    'request_data' => $request->all(),
+                'user_id'       => $request->user() ? $request->user()->id : null,
+                'error_message' => 'Unexpected error in user update: ' . $e->getMessage(),
+                'error_code'    => $e->getCode(),
+                'file_path'     => $e->getFile(),
+                'class'         => __CLASS__,
+                'function'      => __FUNCTION__,
+                'line'          => $e->getLine(),
+                'stack_trace'   => $e->getTraceAsString(),
+                'context'       => json_encode([
+                    'request_data'      => $request->all(),
                     'user_id_to_update' => $request->id,
-                    'error' => $e->getMessage(),
+                    'error'             => $e->getMessage(),
                 ]),
             ]);
 
-            return response()->json([
-                'status' => 'failed',
-                'message' => 'Failed to update user. Please try again.',
-                'error' => config('app.debug') ? $e->getMessage() : null,
-            ], 500);
+            return HelperFunction::response( null, 'Failed to update user. Please try again.', 'error', ResponseCode::SYSTEM_ERROR, Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+
     }
 
     /**
@@ -541,15 +533,16 @@ class UserController extends Controller
      *
      * @since 1.0.0
      */
-    public function deleteUserByID(Request $request, $id): JsonResponse
+    public function deleteUserByID(Request $request): JsonResponse
     {
         try {
+           $id = $request->id;
            $validator = Validator::make(
-    array_merge($request->all(), ['id' => $id]),
-    [
-        'id' => 'required|exists:users,id'
-    ]
-);
+                $request->all(),
+                [
+                    'id' => 'required|exists:users,id'
+                ]
+            );
 
             if ($validator->fails()) {
                 return response()->json([
@@ -604,15 +597,15 @@ class UserController extends Controller
                 'user_agent' => $request->userAgent(),
             ]);
 
-            return response()->json([
-                'status' => 'success',
-                'message' => 'User deleted successfully',
-                'data' => [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                ],
-            ], 200);
+            $responseData = [
+                'id'    => $user->id,
+                'name'  => $user->name,
+                'email' => $user->email,
+            ];
+
+            $encryptedData = HelperFunction::encrypt($responseData);
+
+            return HelperFunction::response($encryptedData, 'User deleted successfully', 'success', ResponseCode::SUCCESS, Response::HTTP_OK);
 
         } catch (Exception $e) {
             ErrorLog::log([

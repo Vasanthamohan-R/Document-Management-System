@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { User } from "@/types/user";
+import { User } from "@/pages/Management/UserManagement";
 import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
 import React from "react";
@@ -45,7 +45,7 @@ const EllipsisText: React.FC<{ text: string; lines?: number }> = ({
 }) => {
     return (
         <div
-            className={`text-sm text-slate-900 dark:text-white break-words max-w-[calc(100%-7rem)] line-clamp-${lines}`}
+            className={`text-sm text-slate-900 dark:text-white wrap-break-words max-w-[calc(100%-7rem)] line-clamp-${lines}`}
             style={{
                 display: "-webkit-box",
                 WebkitLineClamp: lines,
@@ -65,7 +65,7 @@ const ViewUserModal: React.FC<Props> = ({ user, open, onClose }) => {
         <AnimatePresence>
             {open && user && (
                 <motion.div
-                    className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+                    className="fixed inset-0 z-100 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
@@ -78,7 +78,7 @@ const ViewUserModal: React.FC<Props> = ({ user, open, onClose }) => {
                         transition={{ duration: 0.3 }}
                     >
                         {/* Header */}
-                        <div className="relative px-6 py-4 border-b border-slate-100 dark:border-slate-800 sticky top-0 bg-white dark:bg-slate-900 z-10">
+                        <div className="relative px-6 py-4 border-b border-slate-100 dark:border-slate-800 top-0 bg-white dark:bg-slate-900 z-10">
                             <button
                                 onClick={onClose}
                                 className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors p-1"

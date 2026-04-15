@@ -160,7 +160,7 @@ const Folders: React.FC = () => {
 
   const FileCard = ({ item }: { item: FileItem }) => (
     <div
-      className={`bg-white rounded-lg border p-5 group transition-all relative flex flex-col items-center cursor-pointer ${selectedIds.has(item.id) ? 'border-blue-400 ring-1 ring-blue-400' : 'border-slate-100 hover:border-blue-200'}`}
+      className={`bg-white dark:bg-slate-900/50 backdrop-blur-sm rounded-lg border p-5 group transition-all relative flex flex-col items-center cursor-pointer ${selectedIds.has(item.id) ? 'border-blue-400 ring-1 ring-blue-400' : 'border-slate-100 dark:border-slate-800 hover:border-blue-200 dark:hover:border-blue-900/30'}`}
       onClick={() => handleItemClick(item)}
     >
       <div className="w-full flex justify-between items-start mb-2">
@@ -178,7 +178,7 @@ const Folders: React.FC = () => {
         <div className="relative">
           <button
             onClick={(e) => { e.stopPropagation(); setActiveMenuId(activeMenuId === item.id ? null : item.id); }}
-            className="p-1 hover:bg-slate-50 rounded-full text-slate-300 group-hover:text-slate-500 transition-colors"
+            className="p-1 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-full text-slate-300 group-hover:text-slate-500 transition-colors"
           >
             <MoreVertical size={16} />
           </button>
@@ -186,12 +186,12 @@ const Folders: React.FC = () => {
           {activeMenuId === item.id && (
             <>
               <div className="fixed inset-0 z-10" onClick={(e) => { e.stopPropagation(); setActiveMenuId(null); }} />
-              <div className="absolute right-0 mt-1 w-48 bg-white rounded-xl shadow-2xl border border-slate-50 z-20 py-1 overflow-hidden animate-in fade-in zoom-in duration-200 ring-1 ring-black/5">
+              <div className="absolute right-0 mt-1 w-48 bg-white dark:bg-slate-900 rounded-xl shadow-2xl border border-slate-50 dark:border-slate-800 z-20 py-1 overflow-hidden animate-in fade-in zoom-in duration-200 ring-1 ring-black/5">
                 {menuActions.map((action, idx) => (
                   <button
                     key={idx}
                     onClick={(e) => { e.stopPropagation(); action.onClick && action.onClick(item); }}
-                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50 transition-colors first:pt-3 last:pb-3"
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors first:pt-3 last:pb-3"
                   >
                     <action.icon size={16} className={action.color} />
                     <span className="font-semibold">{action.label}</span>
@@ -205,7 +205,7 @@ const Folders: React.FC = () => {
 
       <div className="text-center w-full">
         <div className="flex items-center justify-center gap-1.5 px-2">
-          <h3 className="text-sm font-bold text-slate-700 truncate">{item.name}</h3>
+          <h3 className="text-sm font-bold text-slate-700 dark:text-slate-200 truncate">{item.name}</h3>
           {item.starred && <Star size={13} className="text-blue-500 fill-blue-500 flex-shrink-0" />}
         </div>
         <p className="text-[11px] text-slate-400 font-bold mt-1 tracking-tight">
@@ -216,11 +216,11 @@ const Folders: React.FC = () => {
   );
 
   const ListView = () => (
-    <div className="w-full bg-white rounded-xl border border-slate-100 overflow-hidden">
+    <div className="w-full bg-white dark:bg-slate-900/50 backdrop-blur-sm rounded-xl border border-slate-100 dark:border-slate-800 overflow-hidden">
       <table className="w-full text-left border-collapse">
-        <thead className="bg-slate-50/50 border-b border-slate-100">
-          <tr>
-            <th className="py-4 px-6 w-12 text-center">
+        <thead className="bg-slate-50 dark:bg-slate-900 shadow-sm transition-colors border-b border-slate-100 dark:border-slate-800">
+          <tr className="text-slate-500 dark:text-slate-400 uppercase tracking-widest font-bold text-[11px]">
+            <th className="px-6 py-4 w-12 text-center">
               <input
                 type="checkbox"
                 checked={selectedIds.size === currentItems.length && currentItems.length > 0}
@@ -228,27 +228,17 @@ const Folders: React.FC = () => {
                 className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
               />
             </th>
-            <th className="py-4 px-4 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-              <div className="flex items-center gap-1 cursor-pointer hover:text-slate-600 transition-colors">
-                Name <ChevronDown size={14} />
-              </div>
-            </th>
-            <th className="py-4 px-4 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-              Last Opened
-            </th>
-            <th className="py-4 px-4 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-              Members
-            </th>
-            <th className="py-4 px-6 text-right w-16">
-              <MoreVertical size={16} className="text-slate-300 ml-auto" />
-            </th>
+            <th className="px-4 py-4">Name</th>
+            <th className="px-4 py-4">Size</th>
+            <th className="px-4 py-4">Last Modified</th>
+            <th className="px-6 py-4 text-right">Actions</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-50">
+        <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
           {currentItems.map((item) => (
             <tr
               key={item.id}
-              className={`group hover:bg-blue-50/30 transition-colors cursor-pointer ${selectedIds.has(item.id) ? 'bg-blue-50/50' : ''}`}
+              className={`group hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-colors cursor-pointer ${selectedIds.has(item.id) ? 'bg-blue-50/50 dark:bg-blue-900/20' : ''}`}
               onClick={() => handleItemClick(item)}
             >
               <td className="py-4 px-6 text-center">
@@ -262,52 +252,32 @@ const Folders: React.FC = () => {
               <td className="py-4 px-4">
                 <div className="flex items-center gap-4">
                   {getIcon(item.type, true)}
-                  <span className="text-sm font-bold text-slate-700">{item.name}</span>
+                  <span className="text-sm font-bold text-slate-700 dark:text-slate-200">{item.name}</span>
                   {item.starred && <Star size={13} className="text-blue-500 fill-blue-500" />}
                 </div>
               </td>
-              <td className="py-4 px-4">
-                <div className="flex flex-col">
-                  <span className="text-sm font-semibold text-slate-600">{item.updatedAt.split(',')[0]}</span>
-                  <span className="text-[11px] font-bold text-slate-400 uppercase mt-0.5">by Abu Bin Ishtiyak</span>
-                </div>
+              <td className="px-4 py-4 text-sm text-slate-500 dark:text-slate-400">
+                {item.size || '-'}
               </td>
-              <td className="py-4 px-4">
-                <div className="flex items-center -space-x-2">
-                  {item.members && item.members > 1 ? (
-                    <>
-                      {[1, 2, 3].map((_, i) => (
-                        <div key={i} className={`w-7 h-7 rounded-full border-2 border-white flex items-center justify-center text-[10px] font-bold text-white ${['bg-blue-400', 'bg-purple-400', 'bg-pink-400'][i]}`}>
-                          {['IH', 'AB', 'SI'][i]}
-                        </div>
-                      ))}
-                      <div className="w-7 h-7 rounded-full border-2 border-white bg-slate-100 flex items-center justify-center text-[10px] font-bold text-slate-400">
-                        +2
-                      </div>
-                    </>
-                  ) : (
-                    <span className="text-xs font-bold text-slate-400 flex items-center gap-1.5 italic">
-                      <Share2 size={12} strokeWidth={2.5} /> Only Me
-                    </span>
-                  )}
-                </div>
+              <td className="px-4 py-4 text-sm text-slate-500 dark:text-slate-400">
+                {item.updatedAt}
               </td>
-              <td className="py-4 px-6 text-right relative text-left">
+              <td className="py-4 px-6 text-right relative">
                 <button
                   onClick={(e) => { e.stopPropagation(); setActiveMenuId(activeMenuId === item.id ? null : item.id); }}
-                  className="p-1 hover:bg-slate-100 rounded-full text-slate-300 group-hover:text-slate-500 transition-colors"
+                  className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full text-slate-300 group-hover:text-slate-500 transition-colors"
                 >
                   <MoreVertical size={16} />
                 </button>
                 {activeMenuId === item.id && (
                   <>
                     <div className="fixed inset-0 z-10" onClick={(e) => { e.stopPropagation(); setActiveMenuId(null); }} />
-                    <div className="absolute right-6 top-10 w-48 bg-white rounded-xl shadow-2xl border border-slate-50 z-20 py-1 overflow-hidden ring-1 ring-black/5 text-left">
+                    <div className="absolute right-6 top-10 w-48 bg-white dark:bg-slate-900 rounded-xl shadow-2xl border border-slate-50 dark:border-slate-800 z-20 py-1 overflow-hidden ring-1 ring-black/5 text-left">
                       {menuActions.map((action, idx) => (
                         <button
                           key={idx}
                           onClick={(e) => { e.stopPropagation(); action.onClick && action.onClick(item); }}
-                          className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
+                          className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
                         >
                           <action.icon size={16} className={action.color} />
                           <span className="font-semibold">{action.label}</span>
@@ -329,15 +299,15 @@ const Folders: React.FC = () => {
       {/* Top Search Bar / Bulk Actions Bar */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12 min-h-[44px]">
         {selectedIds.size > 0 ? (
-          <div className="flex-1 flex items-center justify-between bg-blue-50 border border-blue-100 rounded-xl px-4 py-2 animate-in slide-in-from-top-4 duration-300">
+          <div className="flex-1 flex items-center justify-between bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-xl px-4 py-2 animate-in slide-in-from-top-4 duration-300">
             <div className="flex items-center gap-4">
               <button
                 onClick={() => setSelectedIds(new Set())}
-                className="p-1 hover:bg-white rounded-lg text-blue-600 transition-colors"
+                className="p-1 hover:bg-white dark:hover:bg-blue-900/40 rounded-lg text-blue-600 transition-colors"
               >
                 <X size={20} />
               </button>
-              <span className="text-sm font-bold text-blue-700">{selectedIds.size} Selected</span>
+              <span className="text-sm font-bold text-blue-700 dark:text-blue-300">{selectedIds.size} Selected</span>
             </div>
             <div className="flex items-center gap-2">
               {[
@@ -350,7 +320,7 @@ const Folders: React.FC = () => {
                 <button
                   key={i}
                   onClick={action.onClick}
-                  className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all hover:bg-white ${action.color || 'text-blue-600'}`}
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all hover:bg-white dark:hover:bg-blue-900/40 ${action.color || 'text-blue-600 dark:text-blue-400'}`}
                 >
                   <action.icon size={14} />
                   <span className="hidden sm:inline">{action.label}</span>
@@ -366,7 +336,7 @@ const Folders: React.FC = () => {
             <input
               type="text"
               placeholder="Search files, folders"
-              className="w-full h-11 pl-11 pr-4 bg-slate-50 border border-transparent rounded-xl text-sm font-medium focus:bg-white focus:border-blue-100 focus:ring-4 focus:ring-blue-500/5 transition-all outline-none text-slate-600 placeholder:text-slate-400"
+              className="w-full h-11 pl-11 pr-4 bg-slate-100 dark:bg-slate-900/50 border border-transparent dark:border-slate-800 rounded-xl text-sm font-medium focus:bg-white dark:focus:bg-slate-900 focus:border-blue-100 dark:focus:border-blue-900 focus:ring-4 focus:ring-blue-500/5 transition-all outline-none text-slate-600 dark:text-slate-200 placeholder:text-slate-400"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -375,7 +345,7 @@ const Folders: React.FC = () => {
 
         {!selectedIds.size && (
           <div className="flex items-center gap-3">
-            <Button variant="outline" className="bg-slate-50 border-none text-slate-700 font-bold px-6 h-11 rounded-xl flex items-center gap-2.5 hover:bg-slate-100 transition-colors">
+            <Button variant="outline" className="bg-slate-50 dark:bg-slate-900 border-none text-slate-700 dark:text-slate-200 font-bold px-6 h-11 rounded-xl flex items-center gap-2.5 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
               <Plus size={19} strokeWidth={2.5} /> Create
             </Button>
             <Button variant="primary" className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 h-11 rounded-xl flex items-center gap-2.5 shadow-lg shadow-blue-500/20 transition-all active:scale-95">
@@ -386,21 +356,24 @@ const Folders: React.FC = () => {
       </div>
 
       <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center gap-3 overflow-x-auto no-scrollbar py-1">
+        <div className="flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400 font-medium whitespace-nowrap overflow-hidden">
           <button
-            onClick={() => { setCurrentFolderId(null); setSelectedIds(new Set()); }}
-            className={`text-sm font-bold transition-colors whitespace-nowrap ${currentFolderId === null ? 'text-slate-800' : 'text-slate-400 hover:text-slate-600'}`}
+            onClick={() => setCurrentFolderId(null)}
+            className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex-shrink-0"
           >
             Files
           </button>
-          {currentPath.map((folder, i) => (
-            <React.Fragment key={folder.id}>
-              <ChevronRight size={14} className="text-slate-300 flex-shrink-0" />
+          {currentPath.map((item, idx) => (
+            <React.Fragment key={item.id}>
+              <ChevronRight size={14} className="text-slate-300 dark:text-slate-600 flex-shrink-0" />
               <button
-                onClick={() => { setCurrentFolderId(folder.id); setSelectedIds(new Set()); }}
-                className={`text-sm font-bold transition-colors whitespace-nowrap ${i === currentPath.length - 1 ? 'text-slate-800' : 'text-slate-400 hover:text-slate-600'}`}
+                onClick={() => setCurrentFolderId(item.id)}
+                className={cn(
+                  "hover:text-blue-600 dark:hover:text-blue-400 transition-colors truncate max-w-[120px]",
+                  idx === currentPath.length - 1 && "text-slate-900 dark:text-white font-bold"
+                )}
               >
-                {folder.name}
+                {item.name}
               </button>
             </React.Fragment>
           ))}

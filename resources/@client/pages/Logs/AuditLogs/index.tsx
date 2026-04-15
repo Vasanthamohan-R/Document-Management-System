@@ -17,7 +17,25 @@ import api from "@/services/ApiService";
 import Pagination from "@/components/Base/Pagination";
 
 // Types
-import { AuditLogItem } from "@/types/log";
+// Types
+export interface AuditLogItem {
+    id: number;
+    client_id: number | string;
+    module: string;
+    action: string;
+    message: string;
+    status: "Success" | "Failed" | "Warning";
+    created_at: string;
+    ip_address: string;
+    full_ip?: string;
+    email: string;
+    purpose: string;
+    old_value?: string;
+    new_value?: string;
+    custom1?: string;
+    custom2?: string;
+}
+
 
 // Components
 import ViewLogModal from "@/components/Popup/ViewLogModal";
@@ -221,14 +239,14 @@ const AuditLogsPage: React.FC = () => {
                         <History className="text-blue-600" size={28} />
                         Audit Logs
                     </h1>
-                    <p className="text-sm text-slate-500 mt-1">
-                        Track and monitor all user activities within the system.
+                    <p className="text-slate-500 dark:text-slate-400 mt-1">
+                        Track all system activities and administrative changes.
                     </p>
                 </div>
             </div>
 
             {/* Card */}
-            <div className="flex-1 min-h-0 bg-white dark:bg-slate-900 rounded-md border border-slate-200 dark:border-slate-800 flex flex-col shadow-sm overflow-hidden">
+            <div className="flex-1 min-h-0 bg-white dark:bg-slate-900/50 backdrop-blur-sm rounded-md border border-slate-200 dark:border-slate-800 flex flex-col shadow-sm overflow-hidden transition-colors duration-300">
                 {/* Filter Bar */}
                 <div className="flex items-center gap-4 p-4 border-b border-slate-100 dark:border-slate-800 shrink-0 overflow-x-auto no-scrollbar">
                     <div className="flex items-center gap-2 min-w-[140px]">
@@ -331,27 +349,30 @@ const AuditLogsPage: React.FC = () => {
                 {/* Table */}
                 <div className="flex-1 overflow-y-auto no-scrollbar m-5">
                     <table className="w-full text-left border-separate border-spacing-0">
-                        <thead className="sticky top-0 z-10 bg-white">
-                            <tr>
-                                <th className="px-4 py-3 text-[11px] uppercase font-bold">
+                        <thead className="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 transition-colors">
+                            <tr className="text-slate-500 dark:text-slate-200 uppercase tracking-widest font-bold text-[11px]">
+                                <th className="px-6 py-4 w-[60px]">
                                     No.
                                 </th>
-                                <th className="px-4 py-3 text-[11px] uppercase font-bold min-w-[150px]">
-                                    E-Mail
-                                </th>
-                                <th className="px-4 py-3 text-[11px] uppercase font-bold">
-                                    Client ID
-                                </th>
-                                <th className="px-4 py-3 text-[11px] uppercase font-bold">
+                                <th className="px-4 py-4 w-[120px]">
                                     Module
                                 </th>
-                                <th className="px-4 py-3 text-[11px] uppercase font-bold">
-                                    Purpose
+                                <th className="px-4 py-4 w-[120px]">
+                                    Action
                                 </th>
-                                <th className="px-4 py-3 text-[11px] uppercase font-bold">
-                                    Created At
+                                <th className="px-4 py-4 w-[250px]">
+                                    Message
                                 </th>
-                                <th className="px-4 py-3 text-[11px] uppercase font-bold">
+                                <th className="px-4 py-4 w-[200px]">
+                                    User
+                                </th>
+                                <th className="px-4 py-4 w-[120px]">
+                                    Status
+                                </th>
+                                <th className="px-4 py-4 w-[160px]">
+                                    Date & Time
+                                </th>
+                                <th className="px-6 py-4 w-[80px] text-center">
                                     Action
                                 </th>
                             </tr>
@@ -370,40 +391,49 @@ const AuditLogsPage: React.FC = () => {
                             ) : logs.length > 0 ? (
                                 logs.map((log, index) => (
                                     <tr
-                                        key={`${log.id}-${index}`}
-                                        className="group hover:bg-slate-50/30 dark:hover:bg-slate-800/20 transition-all duration-300"
+                                        key={log.id}
+                                        className="group hover:bg-slate-50/50 dark:hover:bg-slate-800/40 border-b border-slate-100 dark:border-slate-800/50 last:border-0 transition-all duration-300"
                                     >
-                                        <td className="px-4 py-2 text-md text-slate-400">
+                                        <td className="px-6 py-4 text-sm text-slate-500 dark:text-slate-400">
                                             {(currentPage - 1) * itemsPerPage +
                                                 index +
                                                 1}
                                         </td>
 
-                                        <td className="px-4 py-2 text-sm text-slate-500 min-w-[150px]">
-                                            {log.email || "N/A"}
+                                        <td className="px-4 py-4">
+                                            <span className="text-[12px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-widest bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded">
+                                                {log.module}
+                                            </span>
                                         </td>
-
-                                        <td className="px-4 py-2 text-sm font-semibold text-slate-700 dark:text-slate-200 w-56">
-                                            {log.client_id}
+                                        <td className="px-4 py-4 text-sm font-semibold text-slate-700 dark:text-slate-200 uppercase tracking-wide">
+                                            {log.action}
                                         </td>
-
-                                        <td className="px-4 py-2">
-                                            <div className="flex items-center gap-2 min-w-0">
-                                                <span className="truncate text-sm font-bold text-slate-600 dark:text-slate-400 w-24">
-                                                    {log.module}
-                                                </span>
+                                        <td className="px-4 py-4 text-sm text-slate-600 dark:text-slate-300">
+                                            {log.message}
+                                        </td>
+                                        <td className="px-4 py-4">
+                                            <div className="flex flex-col gap-0.5">
+                                                <p className="text-sm font-bold text-slate-700 dark:text-slate-100">
+                                                    {log.client_id || "Super Admin"}
+                                                </p>
+                                                <p className="text-[11px] text-slate-400 dark:text-slate-500 font-medium">
+                                                    {log.email}
+                                                </p>
+                                            </div>
+                                        </td>
+                                        <td className="px-4 py-4">
+                                            <span className={`text-[11px] font-bold px-2 py-1 rounded-full ${log.status === 'Success' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'}`}>
+                                                {log.status}
+                                            </span>
+                                        </td>
+                                        <td className="px-4 py-4 text-sm text-slate-500 dark:text-slate-400 font-medium">
+                                            <div className="flex flex-col gap-0.5">
+                                                <span>{log.created_at?.split(" ")[0]}</span>
+                                                <span className="text-[11px] text-slate-400 dark:text-slate-500">{log.created_at?.split(" ").slice(1).join(" ")}</span>
                                             </div>
                                         </td>
 
-                                        <td className="px-4 py-2 text-sm text-slate-500 w-72">
-                                            {log.action}
-                                        </td>
-
-                                        <td className="px-4 py-2 text-sm text-slate-500">
-                                            {log.created_at}
-                                        </td>
-
-                                        <td className="px-6 py-2 text-left">
+                                        <td className="px-6 py-2 text-center">
                                             <button
                                                 onClick={() =>
                                                     handleViewDetails(log)

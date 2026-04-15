@@ -3,10 +3,11 @@
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 @source '../**/*.blade.php';
-@source '../**/*.js';
+@source '../**/*.{js,ts,tsx}';
 
 @theme {
     --color-brand: #33459b;
+    --color-brand-dark: #1e2a6b;
 
     --font-sans:
         "Instrument Sans", ui-sans-serif, system-ui, sans-serif,
@@ -14,10 +15,10 @@
         "Noto Color Emoji";
 }
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Dark mode support in v4 */
+@custom-variant dark (&:where(.dark, .dark *));
 
+/* Custom scrollbar hide */
 body::-webkit-scrollbar,
 *::-webkit-scrollbar {
     display: none;

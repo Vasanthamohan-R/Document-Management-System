@@ -3,7 +3,7 @@
 namespace App\Models\Auth;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use App\Models\Department;
+use App\Models\Auth\Department;
 use App\Models\Location\City;
 use App\Models\Location\Country;
 use App\Models\Location\State;
@@ -34,6 +34,8 @@ class User extends Authenticatable
 
     public const STATUS_PASSWORD_UNCHANGED = 4;
 
+    public const STATUS_SUSPENDED = 5;
+
     // ========== EMAIL VERIFICATION STATUS CONSTANTS ==========
     public const EMAIL_UNVERIFIED = 1;
 
@@ -48,7 +50,7 @@ class User extends Authenticatable
 
     public const PHONE_BLOCKED = 3;
 
-    public const FALSE_ATTEMPT_COUNT = 3;
+    public const FALSE_ATTEMPT_COUNT = 5;
 
     protected $fillable = [
         'name',

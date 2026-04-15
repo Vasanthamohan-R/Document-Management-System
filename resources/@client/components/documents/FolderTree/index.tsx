@@ -56,8 +56,8 @@ const FolderNode: React.FC<{ node: FolderItem; depth: number }> = ({ node, depth
     <div className="flex flex-col">
       <div 
         className={cn(
-          "group flex items-center justify-between rounded-md px-2 py-1.5 transition-colors hover:bg-slate-100",
-          isOpen && "bg-slate-50"
+          "group flex items-center justify-between rounded-md px-2 py-1.5 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800",
+          isOpen && "bg-slate-50 dark:bg-slate-800/50"
         )}
         style={{ paddingLeft: `${depth * 1.5}rem` }}
       >
@@ -70,9 +70,9 @@ const FolderNode: React.FC<{ node: FolderItem; depth: number }> = ({ node, depth
             <div className="w-4" />
           )}
           {isOpen ? <FolderOpen className="h-4 w-4 text-blue-500" /> : <Folder className="h-4 w-4 text-blue-400" />}
-          <span className="text-sm font-medium text-slate-700">{node.name}</span>
+          <span className="text-sm font-medium text-slate-700 dark:text-slate-200">{node.name}</span>
         </div>
-        <button className="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-slate-900 transition-opacity">
+        <button className="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-opacity">
           <MoreVertical className="h-3.5 w-3.5" />
         </button>
       </div>
@@ -89,7 +89,7 @@ const FolderNode: React.FC<{ node: FolderItem; depth: number }> = ({ node, depth
 
 const FolderTree: React.FC = () => {
   return (
-    <div className="flex flex-col h-full bg-slate-50/50 p-4 border rounded-xl border-slate-200">
+    <div className="flex flex-col h-full bg-slate-50/50 dark:bg-slate-900/30 p-4 border rounded-xl border-slate-200 dark:border-slate-800 backdrop-blur-sm">
       <div className="mb-4 flex items-center justify-between">
         <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-500">Folder Tree</h3>
         <button className="flex h-7 w-7 items-center justify-center rounded-md bg-blue-100 text-blue-600 hover:bg-blue-200">
@@ -102,7 +102,7 @@ const FolderTree: React.FC = () => {
         <input 
           type="text" 
           placeholder="Filter folders..." 
-          className="h-9 w-full rounded-md border border-slate-200 bg-white pl-9 pr-4 text-xs outline-none focus:ring-1 focus:ring-blue-400"
+          className="h-9 w-full rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 pl-9 pr-4 text-xs text-slate-900 dark:text-white outline-none focus:ring-1 focus:ring-blue-400 dark:focus:ring-blue-500 transition-all font-medium"
         />
       </div>
 

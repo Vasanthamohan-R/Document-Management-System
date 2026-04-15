@@ -3,9 +3,10 @@
 namespace App\Http\Controllers\Public;
 
 use App\Constants\ResponseCode;
+use App\Helper\HelperFunction;
 use App\Http\Controllers\Controller;
 use App\Models\Auth\User;
-use App\Models\Contact;
+use App\Models\Log\Contact;
 use App\Models\Log\AuditLog;
 use App\Models\Log\ErrorLog;
 use App\Models\Log\LogMail;
@@ -16,6 +17,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Class ContactController
@@ -113,16 +115,17 @@ class ContactController extends Controller
                 'custom2' => 'IP: '.$request->ip(),
             ]);
 
-            return response()->json([
-                'status' => 'success',
-                'data' => $formatted,
+            $encryptedData = HelperFunction::encrypt([
+                'data'       => $formatted,
                 'pagination' => [
                     'current_page' => $contacts->currentPage(),
-                    'last_page' => $contacts->lastPage(),
-                    'per_page' => $contacts->perPage(),
-                    'total' => $contacts->total(),
+                    'last_page'    => $contacts->lastPage(),
+                    'per_page'     => $contacts->perPage(),
+                    'total'        => $contacts->total(),
                 ],
             ]);
+
+            return HelperFunction::response($encryptedData, 'Contact logs retrieved successfully', 'success', ResponseCode::SUCCESS, Response::HTTP_OK);
 
         } catch (Exception $e) {
             ErrorLog::log([

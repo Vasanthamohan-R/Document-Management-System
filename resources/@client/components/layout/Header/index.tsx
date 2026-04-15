@@ -61,13 +61,13 @@ const Header: React.FC<HeaderProps> = ({ setIsMobileOpen }) => {
   };
 
     return (
-        <header className="sticky top-0 z-40 flex h-20 items-center justify-between bg-white/80 backdrop-blur px-6">
+        <header className="sticky top-0 z-40 flex h-20 items-center justify-between bg-white/80 dark:bg-slate-950/80 backdrop-blur px-6 border-b border-slate-100 dark:border-slate-800">
             {/* Left */}
             <div className="flex items-center gap-4">
                 <motion.button
                     whileTap={{ scale: 0.9 }}
                     onClick={() => setIsMobileOpen(true)}
-                    className="lg:hidden flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100"
+                    className="lg:hidden flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100 dark:bg-slate-900 text-slate-600 dark:text-slate-300"
                 >
                     <Menu size={20} />
                 </motion.button>
@@ -80,7 +80,7 @@ const Header: React.FC<HeaderProps> = ({ setIsMobileOpen }) => {
                     <input
                         type="text"
                         placeholder="Search..."
-                        className="h-10 w-80 pl-9 border rounded-lg text-sm"
+                        className="h-10 w-80 pl-9 border border-slate-200 dark:border-slate-800 rounded-lg text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 outline-none focus:ring-1 focus:ring-blue-500/50"
                     />
                 </div>
 
@@ -95,23 +95,23 @@ const Header: React.FC<HeaderProps> = ({ setIsMobileOpen }) => {
 
                 <button
                     onClick={toggleDarkMode}
-                    className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100"
+                    className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100 dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:bg-gray-200 dark:hover:bg-slate-800 transition-colors"
                 >
                     {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
                 </button>
 
                 <div className="relative">
-                    <button className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100">
+                    <button className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100 dark:bg-slate-900 text-slate-600 dark:text-slate-300">
                         <Bell size={18} />
                     </button>
-                    <span className="absolute top-1 right-1 h-3 w-3 rounded-full bg-blue-600" />
+                    <span className="absolute top-2.5 right-2.5 h-2 w-2 rounded-full bg-blue-600 border-2 border-white dark:border-slate-950" />
                 </div>
 
                 {/* Profile Dropdown */}
                 <div className="relative" ref={dropdownRef}>
                     <button
                         onClick={() => setIsProfileOpen(!isProfileOpen)}
-                        className="flex items-center gap-2 rounded-lg bg-gray-100 px-3 py-2 hover:bg-gray-200 transition-colors"
+                        className="flex items-center gap-2 rounded-lg bg-gray-100 dark:bg-slate-900 px-3 py-2 hover:bg-gray-200 dark:hover:bg-slate-800 transition-colors"
                     >
                         <div className="h-8 w-8 rounded-full bg-brand flex items-center justify-center text-white font-semibold">
                             {userName.charAt(0).toUpperCase()}

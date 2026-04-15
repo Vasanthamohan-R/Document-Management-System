@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('oauth_auth_codes', function (Blueprint $table) {
             $table->char('id', 80)->primary();
-            $table->foreignId('user_id')->index();
+            $table->foreignId('user_id')->index()->constrained('users')->cascadeOnDelete();
             $table->foreignUuid('client_id');
             $table->text('scopes')->nullable();
-            $table->boolean('revoked');
+            $table->boolean('revoked')->default(false);
             $table->dateTime('expires_at')->nullable();
         });
     }
