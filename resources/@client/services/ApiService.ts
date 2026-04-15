@@ -33,11 +33,8 @@ ApiService.interceptors.response.use(
             if (typeof apiData === "string" && apiData.length > 0) {
                 try {
                     const decrypted = await decrypt(apiData);
-                    if (
-                        decrypted !== null &&
-                        typeof decrypted === "object" &&
-                        !Array.isArray(decrypted)
-                    ) {
+                    // If decrypted data has 'data' property (pagination response), spread it to top level
+                    if (decrypted && typeof decrypted === "object" && decrypted.data !== undefined) {
                         response.data = { ...response.data, ...decrypted };
                     } else {
                         response.data.data = decrypted;
