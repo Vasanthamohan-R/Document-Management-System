@@ -19,8 +19,6 @@ import Folders from "@/pages/DocumentManagement/Folders";
 import UserManagement from "@/pages/Management/UserManagement";
 import RoleManagement from "@/pages/Management/RoleManagement";
 import RoleForm from "@/components/RoleForm";
-import ChangePassword from "@/pages/Profile/ChangePassword";
-
 
 // Auth Pages
 
@@ -70,7 +68,6 @@ const App = () => {
                  <Route path="logs/contact" element={<ContactLogs />} /> 
 
                 <Route path="/profile" element={<UserProfile />} />
-                <Route path="/change-password" element={<ChangePassword />} />
             </Route>
 
             {/* Catch-all redirect */}

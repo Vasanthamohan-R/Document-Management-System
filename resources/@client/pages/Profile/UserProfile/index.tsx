@@ -1,4 +1,3 @@
-// pages/Profile.tsx
 import React, { useState, useEffect } from "react";
 import { useAppSelector, useAppDispatch } from "@/stores/hooks";
 import { fetchUserProfile } from "@/stores/slices/authSlice";
@@ -10,6 +9,30 @@ import {
     fetchCities,
 } from "@/stores/slices/locationSlice";
 import { Alert } from "@/utils/Alert/Alert";
+import {
+    User,
+    Shield,
+    Mail,
+    Phone,
+    Calendar,
+    Building2,
+    Eye,
+    EyeOff,
+    CheckCircle,
+    Save,
+    X,
+    Edit3,
+    UserCircle,
+    Globe,
+    Hash,
+    Briefcase,
+    KeyRound,
+    Lock,
+    AlertCircle,
+    Activity,
+    MapPin
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 const Profile: React.FC = () => {
     const dispatch = useAppDispatch();
@@ -22,10 +45,28 @@ const Profile: React.FC = () => {
     const allCities = useAppSelector((state) => state.location.allCities);
     const loadingLocations = useAppSelector((state) => state.location.loading);
 
+    // Tab state
+    const [activeTab, setActiveTab] = useState<"general" | "security">("general");
+
+    // Profile editing state
     const [isEditing, setIsEditing] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    // Selected IDs for API (like RegisterModal)
+    // Password form state
+    const [passwordForm, setPasswordForm] = useState({
+        current_password: "",
+        new_password: "",
+        new_password_confirmation: "",
+    });
+    const [showPasswords, setShowPasswords] = useState({
+        current: false,
+        new: false,
+        confirm: false,
+    });
+    const [passwordErrors, setPasswordErrors] = useState<Record<string, string>>({});
+    const [isChangingPassword, setIsChangingPassword] = useState(false);
+
+    // Selected IDs for API
     const [selectedCountryId, setSelectedCountryId] = useState<string>("");
     const [selectedStateId, setSelectedStateId] = useState<string>("");
 
@@ -33,7 +74,7 @@ const Profile: React.FC = () => {
     const [countriesLoaded, setCountriesLoaded] = useState(false);
     const [statesLoaded, setStatesLoaded] = useState(false);
 
-    // Form data - Store NAMES for display, IDs separately (like RegisterModal)
+    // Form data
     const [formData, setFormData] = useState({
         name: "",
         phone: "",
@@ -128,14 +169,13 @@ const Profile: React.FC = () => {
         }
     };
 
-    // Handle country change (like RegisterModal)
     const handleCountryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const countryName = e.target.value;
         const country = countries.find((c) => c.name === countryName);
         const countryId = country?.id?.toString() || "";
 
         setSelectedCountryId(countryId);
-        setSelectedStateId(""); // Reset state
+        setSelectedStateId("");
         setFormData((prev) => ({
             ...prev,
             country_name: countryName,
@@ -144,7 +184,6 @@ const Profile: React.FC = () => {
         }));
     };
 
-    // Handle state change (like RegisterModal)
     const handleStateChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const stateName = e.target.value;
         const state = allStates.find((s) => s.name === stateName);
@@ -158,7 +197,6 @@ const Profile: React.FC = () => {
         }));
     };
 
-    // Validation function
     const validateForm = () => {
         const newErrors: Record<string, string> = {};
 
@@ -199,18 +237,11 @@ const Profile: React.FC = () => {
     };
 
     const handleSaveProfile = async () => {
-        console.log("handleSaveProfile called");
+        if (!validateForm()) return;
 
-        if (!validateForm()) {
-            console.log("Validation failed");
-            return;
-        }
-
-        console.log("Validation passed, sending API call");
         setIsSubmitting(true);
 
         try {
-            // Find city ID from selected city name
             let cityId = null;
             if (formData.city_name && selectedStateId) {
                 const selectedCity = filteredCities.find(
@@ -221,7 +252,6 @@ const Profile: React.FC = () => {
                 }
             }
 
-            // Prepare updatePayload
             const updatePayload: Record<string, any> = {};
 
             if (formData.name && formData.name !== "null")
@@ -244,14 +274,10 @@ const Profile: React.FC = () => {
                 updatePayload.state_id = parseInt(selectedStateId);
             if (cityId) updatePayload.city_id = cityId;
 
-            console.log("Sending payload:", updatePayload);
-
             const response = await api.post(
                 "/auth/profile/update",
                 updatePayload,
             );
-
-            console.log("Update response:", response.data);
 
             if (response.data.status === "success") {
                 await dispatch(fetchUserProfile());
@@ -263,7 +289,6 @@ const Profile: React.FC = () => {
                 );
             }
         } catch (error: any) {
-            console.error("Save error:", error);
             if (error.response?.data?.errors) {
                 setErrors(error.response.data.errors);
                 Alert.Error("Please fix the validation errors");
@@ -279,8 +304,111 @@ const Profile: React.FC = () => {
         }
     };
 
-    const handleChangePassword = () => {
-        navigate("/change-password");
+    // Password strength calculation
+    const getPasswordStrength = (password: string) => {
+        let score = 0;
+        if (password.length >= 8) score++;
+        if (/[A-Z]/.test(password)) score++;
+        if (/[a-z]/.test(password)) score++;
+        if (/\d/.test(password)) score++;
+        if (/[@$!%*?&]/.test(password)) score++;
+
+        if (score <= 2)
+            return {
+                text: "Weak",
+                color: "text-red-500",
+                bg: "bg-red-500",
+                width: "20%",
+            };
+        if (score <= 3)
+            return {
+                text: "Fair",
+                color: "text-yellow-500",
+                bg: "bg-yellow-500",
+                width: "40%",
+            };
+        if (score <= 4)
+            return {
+                text: "Good",
+                color: "text-blue-500",
+                bg: "bg-blue-500",
+                width: "70%",
+            };
+        return {
+            text: "Strong",
+            color: "text-green-500",
+            bg: "bg-green-500",
+            width: "100%",
+        };
+    };
+
+    const passwordStrength = getPasswordStrength(passwordForm.new_password);
+
+    const handlePasswordInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setPasswordForm((prev) => ({ ...prev, [name]: value }));
+        if (passwordErrors[name]) {
+            setPasswordErrors((prev) => ({ ...prev, [name]: "" }));
+        }
+    };
+
+    const validatePasswordForm = () => {
+        const newErrors: Record<string, string> = {};
+
+        if (!passwordForm.current_password) {
+            newErrors.current_password = "Current password is required";
+        }
+        if (!passwordForm.new_password) {
+            newErrors.new_password = "New password is required";
+        } else if (passwordForm.new_password.length < 8) {
+            newErrors.new_password = "Password must be at least 8 characters";
+        }
+        if (passwordForm.new_password !== passwordForm.new_password_confirmation) {
+            newErrors.new_password_confirmation = "Passwords do not match";
+        }
+
+        setPasswordErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
+    const handlePasswordSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!validatePasswordForm()) return;
+
+        setIsChangingPassword(true);
+
+        try {
+            const response = await api.post("/auth/password-change", {
+                current_password: passwordForm.current_password,
+                password: passwordForm.new_password,
+                password_confirmation: passwordForm.new_password_confirmation,
+            });
+
+            if (response.data.status === "success") {
+                Alert.Success("Password changed successfully!");
+                setPasswordForm({
+                    current_password: "",
+                    new_password: "",
+                    new_password_confirmation: "",
+                });
+                setPasswordErrors({});
+            }
+        } catch (error: any) {
+            if (error.response?.data?.errors) {
+                setPasswordErrors(error.response.data.errors);
+            } else {
+                Alert.Error(
+                    error.response?.data?.message ||
+                        "Failed to change password",
+                );
+            }
+        } finally {
+            setIsChangingPassword(false);
+        }
+    };
+
+    const togglePassword = (field: "current" | "new" | "confirm") => {
+        setShowPasswords((prev) => ({ ...prev, [field]: !prev[field] }));
     };
 
     const maskEmail = (email: string) => {
@@ -308,458 +436,267 @@ const Profile: React.FC = () => {
 
     if (loading && !user) {
         return (
-            <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+            <div className="min-h-screen bg-white dark:bg-slate-950 flex items-center justify-center">
                 <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
-                    <p className="mt-4 text-gray-600">Loading profile...</p>
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
+                    <p className="mt-4 text-gray-600 dark:text-slate-400">Loading profile...</p>
                 </div>
             </div>
         );
     }
 
-    return (
-        <div className="bg-gray-100 dark:bg-slate-950 min-h-screen px-6 py-6 transition-colors duration-300">
-            {/* PROFILE HEADER */}
-            <div className="bg-white dark:bg-slate-900/50 backdrop-blur-sm rounded-2xl shadow p-6 flex items-center justify-between mb-6 ring-1 ring-slate-100 dark:ring-slate-800">
-                <div className="flex items-center gap-6">
-                    <div className="w-20 h-20 rounded-full bg-gray-200 dark:bg-slate-800 flex items-center justify-center text-2xl font-bold dark:text-white">
-                        {user?.name?.charAt(0) || "U"}
-                    </div>
-                    <div>
-                        <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                            {user?.name || "User Name"}
-                        </h2>
-                        <p className="text-sm text-gray-500">
-                            {maskEmail(user?.email || "")}
-                        </p>
-                        <div className="flex gap-2 mt-1">
-                            <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-600 rounded-full">
-                                {user?.role_name || "Role"}
-                            </span>
-                            <span className="text-xs px-2 py-0.5 bg-gray-200 text-gray-600 rounded-full">
-                                {user?.department_name || "Department"}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-                <button
-                    onClick={handleChangePassword}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
-                >
-                    Change Password
-                </button>
+    const SectionHeader = ({ title, subtitle }: { title: string; subtitle?: string }) => (
+        <div className="mb-6">
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">{title}</h2>
+            {subtitle && <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{subtitle}</p>}
+        </div>
+    );
+
+    const FormField = ({ label, name, value, type = "text", placeholder, icon: Icon, readOnly = false, isSelect = false, options = [], error, onChange, disabled }: any) => (
+        <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 ml-1">{label}</label>
+            <div className="relative group">
+                {Icon && <Icon size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />}
+                {isSelect ? (
+                    <select
+                        name={name}
+                        value={value}
+                        onChange={onChange || handleInputChange}
+                        disabled={!isEditing || readOnly || disabled}
+                        className={`w-full ${Icon ? 'pl-10' : 'pl-4'} pr-4 py-2.5 rounded-xl border text-sm font-medium transition-all outline-none
+                            ${!isEditing || readOnly || disabled
+                                ? 'bg-slate-50 dark:bg-slate-900/50 border-slate-100 dark:border-slate-800 text-slate-600 dark:text-slate-300' 
+                                : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 text-slate-900 dark:text-white'
+                            } ${error ? 'border-red-500' : ''}`}
+                    >
+                        <option value="">{placeholder}</option>
+                        {options.map((opt: any) => <option key={opt.id} value={opt.name}>{opt.name}</option>)}
+                    </select>
+                ) : (
+                    <input
+                        type={type}
+                        name={name}
+                        value={value}
+                        onChange={onChange || handleInputChange}
+                        disabled={!isEditing || readOnly}
+                        placeholder={placeholder}
+                        className={`w-full ${Icon ? 'pl-10' : 'pl-4'} pr-4 py-2.5 rounded-xl border text-sm font-medium transition-all outline-none
+                            ${!isEditing || readOnly 
+                                ? 'bg-slate-50 dark:bg-slate-900/50 border-slate-100 dark:border-slate-800 text-slate-600 dark:text-slate-300' 
+                                : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 text-slate-900 dark:text-white'
+                            } ${error ? 'border-red-500' : ''}`}
+                    />
+                )}
             </div>
+            {error && <p className="text-red-500 text-xs ml-1">{error}</p>}
+        </div>
+    );
 
-            {/* PROFILE INFORMATION CARD */}
-            <div className="bg-white dark:bg-slate-900/50 backdrop-blur-sm rounded-2xl shadow p-6 ring-1 ring-slate-100 dark:ring-slate-800 transition-colors duration-300">
-                <div className="mb-6">
-                    <h3 className="text-lg font-semibold dark:text-white">
-                        Profile Information
-                    </h3>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
-                    {/* Full Name */}
-                    <div className="flex items-start py-2 border-b border-gray-200 dark:border-slate-800/50">
-                        <div className="w-32">
-                            <label className="text-sm text-gray-500 dark:text-slate-400">
-                                Full Name
-                            </label>
+    return (
+        <div className="min-h-screen bg-white dark:bg-slate-950 selection:bg-indigo-100 selection:text-indigo-700">
+            <div className="max-w-6xl mx-auto px-6 py-12 lg:py-10">
+                
+                {/* Header Area */}
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
+                    <div className="flex items-center gap-5">
+                        <div className="w-16 h-16 rounded-2xl bg-indigo-600 flex items-center justify-center text-white text-2xl font-black shadow-lg shadow-indigo-600/20">
+                            {user?.name?.[0]}
                         </div>
-                        <div className="flex-1">
-                            {isEditing ? (
-                                <>
-                                    <input
-                                        type="text"
-                                        name="name"
-                                        value={formData.name}
-                                        onChange={handleInputChange}
-                                        className={`w-full px-3 py-1.5 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.name ? "border-red-500" : "border-gray-300"}`}
-                                        placeholder="Enter full name"
-                                    />
-                                    {errors.name && (
-                                        <p className="text-red-500 text-xs mt-1">
-                                            {errors.name}
-                                        </p>
-                                    )}
-                                </>
-                            ) : (
-                                <span className="text-gray-900 dark:text-slate-200">
-                                    {user?.name || "-"}
-                                </span>
-                            )}
+                        <div>
+                            <h1 className="text-2xl font-black text-slate-900 dark:text-white">{user?.name}</h1>
+                            <p className="text-sm font-medium text-slate-500 dark:text-slate-400 flex items-center gap-2 mt-0.5">
+                                <Shield size={14} className="text-indigo-500" /> {user?.role_name} • {user?.department_name}
+                            </p>
                         </div>
                     </div>
-
-                    {/* Email - Read Only */}
-                    <div className="flex items-center py-2 border-b border-gray-200">
-                        <div className="w-32">
-                            <label className="text-sm text-gray-500">
-                                E-mail
-                            </label>
-                        </div>
-                        <div className="flex-1">
-                            <span className="text-gray-900 dark:text-slate-200">
-                                {maskEmail(user?.email || "")}
-                            </span>
-                        </div>
-                    </div>
-
-                    {/* Mobile No */}
-                    <div className="flex items-start py-2 border-b border-gray-200">
-                        <div className="w-32">
-                            <label className="text-sm text-gray-500">
-                                Mobile No.
-                            </label>
-                        </div>
-                        <div className="flex-1">
-                            {isEditing ? (
-                                <>
-                                    <input
-                                        type="tel"
-                                        name="phone"
-                                        value={formData.phone}
-                                        onChange={handleInputChange}
-                                        className={`w-full px-3 py-1.5 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.phone ? "border-red-500" : "border-gray-300"}`}
-                                        placeholder="0123456789"
-                                    />
-                                    {errors.phone && (
-                                        <p className="text-red-500 text-xs mt-1">
-                                            {errors.phone}
-                                        </p>
-                                    )}
-                                </>
-                            ) : (
-                                <span className="text-gray-900 dark:text-slate-200">
-                                    {maskPhone(user?.phone || "")}
-                                </span>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* DOB */}
-                    <div className="flex items-start py-2 border-b border-gray-200">
-                        <div className="w-32">
-                            <label className="text-sm text-gray-500">DOB</label>
-                        </div>
-                        <div className="flex-1">
-                            {isEditing ? (
-                                <>
-                                    <input
-                                        type="date"
-                                        name="dob"
-                                        value={formData.dob}
-                                        onChange={handleInputChange}
-                                        className={`w-full px-3 py-1.5 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.dob ? "border-red-500" : "border-gray-300"}`}
-                                    />
-                                    {errors.dob && (
-                                        <p className="text-red-500 text-xs mt-1">
-                                            {errors.dob}
-                                        </p>
-                                    )}
-                                </>
-                            ) : (
-                                <span className="text-gray-900 dark:text-slate-200">
-                                    {formatDate(user?.dob || "")}
-                                </span>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Role - Read Only */}
-                    <div className="flex items-center py-2 border-b border-gray-200">
-                        <div className="w-32">
-                            <label className="text-sm text-gray-500">
-                                Role
-                            </label>
-                        </div>
-                        <div className="flex-1">
-                            <span className="text-gray-900 dark:text-slate-200">
-                                {user?.role_name || "-"}
-                            </span>
-                        </div>
-                    </div>
-
-                    {/* Department - Read Only */}
-                    <div className="flex items-center py-2 border-b border-gray-200">
-                        <div className="w-32">
-                            <label className="text-sm text-gray-500">
-                                Department
-                            </label>
-                        </div>
-                        <div className="flex-1">
-                            <span className="text-gray-900">
-                                {user?.department_name || "-"}
-                            </span>
-                        </div>
-                    </div>
-
-                    {/* Address Line 1 */}
-                    <div className="flex items-start py-2 border-b border-gray-200 md:col-span-2">
-                        <div className="w-32">
-                            <label className="text-sm text-gray-500">
-                                Address Line 1
-                            </label>
-                        </div>
-                        <div className="flex-1">
-                            {isEditing ? (
-                                <input
-                                    type="text"
-                                    name="address_line_1"
-                                    value={formData.address_line_1}
-                                    onChange={handleInputChange}
-                                    className="w-full px-3 py-1.5 border border-gray-300 dark:border-slate-800 bg-white dark:bg-slate-950 text-gray-900 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    placeholder="Street address"
-                                />
-                            ) : (
-                                <span className="text-gray-900 dark:text-slate-200">
-                                    {user?.address_line_1 || "-"}
-                                </span>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Address Line 2 */}
-                    <div className="flex items-start py-2 border-b border-gray-200 md:col-span-2">
-                        <div className="w-32">
-                            <label className="text-sm text-gray-500">
-                                Address Line 2
-                            </label>
-                        </div>
-                        <div className="flex-1">
-                            {isEditing ? (
-                                <input
-                                    type="text"
-                                    name="address_line_2"
-                                    value={formData.address_line_2}
-                                    onChange={handleInputChange}
-                                    className="w-full px-3 py-1.5 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    placeholder="Area/Locality"
-                                />
-                            ) : (
-                                <span className="text-gray-900">
-                                    {user?.address_line_2 || "-"}
-                                </span>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Address Line 3 */}
-                    <div className="flex items-start py-2 border-b border-gray-200 md:col-span-2">
-                        <div className="w-32">
-                            <label className="text-sm text-gray-500">
-                                Address Line 3
-                            </label>
-                        </div>
-                        <div className="flex-1">
-                            {isEditing ? (
-                                <input
-                                    type="text"
-                                    name="address_line_3"
-                                    value={formData.address_line_3}
-                                    onChange={handleInputChange}
-                                    className="w-full px-3 py-1.5 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    placeholder="Landmark"
-                                />
-                            ) : (
-                                <span className="text-gray-900">
-                                    {user?.address_line_3 || "-"}
-                                </span>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Country Dropdown */}
-                    <div className="flex items-start py-2 border-b border-gray-200">
-                        <div className="w-32">
-                            <label className="text-sm text-gray-500">
-                                Country
-                            </label>
-                        </div>
-                        <div className="flex-1">
-                            {isEditing ? (
-                                <select
-                                    name="country_name"
-                                    value={formData.country_name}
-                                    onChange={handleCountryChange}
-                                    className="w-full px-3 py-1.5 border border-gray-300 dark:border-slate-800 bg-white dark:bg-slate-950 text-gray-900 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    disabled={loadingLocations.countries}
+                    
+                    <div className="flex items-center gap-3">
+                        {activeTab === "general" && (
+                            !isEditing ? (
+                                <button 
+                                    onClick={() => setIsEditing(true)}
+                                    className="px-5 py-2.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl text-sm font-bold hover:opacity-90 transition-all flex items-center gap-2 shadow-sm"
                                 >
-                                    <option value="">Select Country</option>
-                                    {countries.map((country) => (
-                                        <option
-                                            key={country.id}
-                                            value={country.name}
-                                        >
-                                            {country.name}
-                                        </option>
-                                    ))}
-                                </select>
+                                    <Edit3 size={16} /> Edit Profile
+                                </button>
                             ) : (
-                                <span className="text-gray-900">
-                                    {user?.country_name || "-"}
-                                </span>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* State Dropdown */}
-                    <div className="flex items-start py-2 border-b border-gray-200">
-                        <div className="w-32">
-                            <label className="text-sm text-gray-500">
-                                State
-                            </label>
-                        </div>
-                        <div className="flex-1">
-                            {isEditing ? (
-                                <select
-                                    name="state_name"
-                                    value={formData.state_name}
-                                    onChange={handleStateChange}
-                                    className="w-full px-3 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    disabled={loadingLocations.states}
-                                >
-                                    <option value="">Select State</option>
-                                    {allStates.map((state) => (
-                                        <option
-                                            key={state.id}
-                                            value={state.name}
-                                        >
-                                            {state.name}
-                                        </option>
-                                    ))}
-                                </select>
-                            ) : (
-                                <span className="text-gray-900">
-                                    {user?.state_name || "-"}
-                                </span>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* City Dropdown - Filtered by selected state */}
-                    <div className="flex items-start py-2 border-b border-gray-200">
-                        <div className="w-32">
-                            <label className="text-sm text-gray-500">
-                                City
-                            </label>
-                        </div>
-                        <div className="flex-1">
-                            {isEditing ? (
-                                <select
-                                    name="city_name"
-                                    value={formData.city_name}
-                                    onChange={handleInputChange}
-                                    className="w-full px-3 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    disabled={
-                                        !selectedStateId ||
-                                        loadingLocations.cities
-                                    }
-                                >
-                                    <option value="">Select City</option>
-                                    {filteredCities.map((city) => (
-                                        <option key={city.id} value={city.name}>
-                                            {city.name}
-                                        </option>
-                                    ))}
-                                </select>
-                            ) : (
-                                <span className="text-gray-900">
-                                    {user?.city_name || "-"}
-                                </span>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Postcode */}
-                    <div className="flex items-start py-2 border-b border-gray-200">
-                        <div className="w-32">
-                            <label className="text-sm text-gray-500">
-                                Postcode
-                            </label>
-                        </div>
-                        <div className="flex-1">
-                            {isEditing ? (
-                                <>
-                                    <input
-                                        type="text"
-                                        name="pincode"
-                                        value={formData.pincode}
-                                        onChange={handleInputChange}
-                                        className={`w-full px-3 py-1.5 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.pincode ? "border-red-500" : "border-gray-300"}`}
-                                        placeholder="Postal code"
-                                    />
-                                    {errors.pincode && (
-                                        <p className="text-red-500 text-xs mt-1">
-                                            {errors.pincode}
-                                        </p>
-                                    )}
-                                </>
-                            ) : (
-                                <span className="text-gray-900">
-                                    {user?.pincode || "-"}
-                                </span>
-                            )}
-                        </div>
+                                <div className="flex items-center gap-2">
+                                    <button onClick={() => {
+                                        setIsEditing(false);
+                                        setErrors({});
+                                        if (user) {
+                                            setFormData({
+                                                name: user.name || "",
+                                                phone: user.phone || "",
+                                                address_line_1: user.address_line_1 || "",
+                                                address_line_2: user.address_line_2 || "",
+                                                address_line_3: user.address_line_3 || "",
+                                                country_name: user.country_name || "",
+                                                state_name: user.state_name || "",
+                                                city_name: user.city_name || "",
+                                                pincode: user.pincode || "",
+                                                dob: user.dob || "",
+                                            });
+                                            setSelectedCountryId(user.country_id?.toString() || "");
+                                            setSelectedStateId(user.state_id?.toString() || "");
+                                        }
+                                    }} className="px-4 py-2.5 text-slate-500 dark:text-slate-400 text-sm font-bold hover:text-slate-800 dark:hover:text-slate-200 transition-colors">Cancel</button>
+                                    <button 
+                                        onClick={handleSaveProfile}
+                                        disabled={isSubmitting}
+                                        className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-sm font-bold shadow-lg shadow-indigo-600/20 transition-all flex items-center gap-2"
+                                    >
+                                        {isSubmitting ? <Activity className="animate-spin" size={16} /> : <CheckCircle size={16} />}
+                                        {isSubmitting ? "Saving..." : "Save Changes"}
+                                    </button>
+                                </div>
+                            )
+                        )}
                     </div>
                 </div>
 
-                {/* BUTTONS SECTION - MOVED TO BOTTOM */}
-                <div className="flex justify-end mt-8 pt-4 border-t border-gray-200">
-                    {!isEditing ? (
-                        <button
-                            type="button"
-                            onClick={() => setIsEditing(true)}
-                            className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium shadow-sm"
-                        >
-                            Edit Profile
-                        </button>
-                    ) : (
-                        <div className="flex gap-4">
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    setIsEditing(false);
-                                    setErrors({});
-                                    if (user) {
-                                        setFormData({
-                                            name: user.name || "",
-                                            phone: user.phone || "",
-                                            address_line_1:
-                                                user.address_line_1 || "",
-                                            address_line_2:
-                                                user.address_line_2 || "",
-                                            address_line_3:
-                                                user.address_line_3 || "",
-                                            country_name:
-                                                user.country_name || "",
-                                            state_name: user.state_name || "",
-                                            city_name: user.city_name || "",
-                                            pincode: user.pincode || "",
-                                            dob: user.dob || "",
-                                        });
-                                        setSelectedCountryId(
-                                            user.country_id?.toString() || "",
-                                        );
-                                        setSelectedStateId(
-                                            user.state_id?.toString() || "",
-                                        );
-                                    }
-                                }}
-                                className="px-6 py-2.5 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors text-sm font-medium"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                type="button"
-                                onClick={handleSaveProfile}
-                                disabled={isSubmitting}
-                                className="px-6 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium disabled:opacity-50 shadow-sm"
-                            >
-                                {isSubmitting ? "Saving..." : "Update Profile"}
-                            </button>
-                        </div>
-                    )}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+                    
+                    {/* Navigation */}
+                    <div className="lg:col-span-3">
+                        <nav className="flex lg:flex-col gap-1 overflow-x-auto pb-4 lg:pb-0 no-scrollbar">
+                            {[
+                                { id: "general", label: "General", icon: UserCircle },
+                                { id: "security", label: "Security", icon: KeyRound },
+                            ].map((tab) => (
+                                <button
+                                    key={tab.id}
+                                    onClick={() => { setActiveTab(tab.id as "general" | "security"); setIsEditing(false); }}
+                                    className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all whitespace-nowrap
+                                        ${activeTab === tab.id 
+                                            ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400' 
+                                            : 'text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-900 hover:text-slate-800 dark:hover:text-slate-200'
+                                        }`}
+                                >
+                                    <tab.icon size={18} />
+                                    {tab.label}
+                                </button>
+                            ))}
+                        </nav>
+                    </div>
+
+                    {/* Main Content */}
+                    <div className="lg:col-span-9">
+                        <AnimatePresence mode="wait">
+                            {activeTab === "general" ? (
+                                <motion.div 
+                                    key="general-tab"
+                                    initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
+                                >
+                                    {/* Personal Details */}
+                                    <section>
+                                        <SectionHeader title="Personal Information" subtitle="Update your basic profile and contact details." />
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <FormField label="Full Name" name="name" value={formData.name} icon={User} placeholder="Enter your name" error={errors.name} />
+                                            <FormField label="Email Address" name="email" value={maskEmail(user?.email || "")} icon={Mail} readOnly />
+                                            <FormField label="Phone Number" name="phone" value={formData.phone} icon={Phone} placeholder="+1 000 000 000" error={errors.phone} />
+                                            <FormField label="Date of Birth" name="dob" value={formData.dob} icon={Calendar} type="date" error={errors.dob} />
+                                        </div>
+                                    </section>
+
+                                    {/* Employment Details */}
+                                    <section className="pt-8 border-slate-100 dark:border-slate-800">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <FormField label="Current Role" name="role" value={user?.role_name} icon={Briefcase} readOnly />
+                                            <FormField label="Department" name="dept" value={user?.department_name} icon={Building2} readOnly />
+                                        </div>
+                                    </section>
+
+                                    {/* Address */}
+                                    <section className="pt-8 border-slate-100 dark:border-slate-800">
+                                        <div className="grid grid-cols-1 gap-6">
+                                            <FormField label="Street Address" name="address_line_1" value={formData.address_line_1} icon={MapPin} placeholder="Suite, Street name" />
+                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                                <FormField label="Country" name="country_name" value={formData.country_name} isSelect={isEditing} options={countries} disabled={loadingLocations.countries} onChange={handleCountryChange} placeholder="Select Country" />
+                                                <FormField label="State" name="state_name" value={formData.state_name} isSelect={isEditing} options={allStates} disabled={!selectedCountryId || loadingLocations.states} onChange={handleStateChange} placeholder="Select State" />
+                                                <FormField label="City" name="city_name" value={formData.city_name} icon={Globe} isSelect={isEditing} options={filteredCities} disabled={!selectedStateId || loadingLocations.cities} placeholder="Select City" />
+                                            </div>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                <FormField label="Address Line 2" name="address_line_2" value={formData.address_line_2} placeholder="Area/Locality" />
+                                                <FormField label="Postcode" name="pincode" value={formData.pincode} icon={Hash} error={errors.pincode} placeholder="Postal code" />
+                                            </div>
+                                        </div>
+                                    </section>
+                                </motion.div>
+                            ) : (
+                                <motion.div 
+                                    key="security-tab"
+                                    initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
+                                    className="max-w-xl"
+                                >
+                                    <SectionHeader title="Security Settings" subtitle="Keep your account secure by updating your password regularly." />
+                                    
+                                    <form onSubmit={handlePasswordSubmit} className="space-y-6 bg-slate-50 dark:bg-slate-900/40 p-8 rounded-3xl border border-slate-100 dark:border-slate-800">
+                                        <div className="space-y-4">
+                                            {['current', 'new', 'confirm'].map((field) => (
+                                                <div key={field} className="space-y-1.5">
+                                                    <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 capitalize">
+                                                        {field === 'confirm' ? 'Confirm New' : field} Password
+                                                    </label>
+                                                    <div className="relative">
+                                                        <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                                                        <input
+                                                            type={showPasswords[field as keyof typeof showPasswords] ? "text" : "password"}
+                                                            name={field === 'confirm' ? 'new_password_confirmation' : `${field}_password`}
+                                                            value={field === 'confirm' ? passwordForm.new_password_confirmation : passwordForm[`${field}_password` as keyof typeof passwordForm]}
+                                                            onChange={handlePasswordInputChange}
+                                                            className={`w-full pl-10 pr-12 py-3 rounded-xl border bg-white dark:bg-slate-800 text-sm focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 outline-none transition-all
+                                                                ${passwordErrors[field === 'confirm' ? 'new_password_confirmation' : `${field}_password`] ? 'border-red-500' : 'border-slate-200 dark:border-slate-700'
+                                                            }`}
+                                                            placeholder="••••••••"
+                                                        />
+                                                        <button 
+                                                            type="button"
+                                                            onClick={() => togglePassword(field as "current" | "new" | "confirm")}
+                                                            className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-500"
+                                                        >
+                                                            {showPasswords[field as keyof typeof showPasswords] ? <EyeOff size={18} /> : <Eye size={18} />}
+                                                        </button>
+                                                    </div>
+                                                    {passwordErrors[field === 'confirm' ? 'new_password_confirmation' : `${field}_password`] && (
+                                                        <p className="text-red-500 text-xs">{passwordErrors[field === 'confirm' ? 'new_password_confirmation' : `${field}_password`]}</p>
+                                                    )}
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        {passwordForm.new_password && (
+                                            <div className="space-y-2">
+                                                <div className="flex items-center justify-between text-xs mb-1">
+                                                    <span className="text-slate-500">Password strength</span>
+                                                    <span className={passwordStrength.color}>{passwordStrength.text}</span>
+                                                </div>
+                                                <div className="h-1 bg-slate-200 rounded-full overflow-hidden">
+                                                    <div className={`h-full ${passwordStrength.bg} transition-all duration-300`} style={{ width: passwordStrength.width }} />
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        <button 
+                                            type="submit"
+                                            disabled={isChangingPassword}
+                                            className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-2xl shadow-xl shadow-indigo-600/10 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        >
+                                            <Lock size={18} />
+                                            {isChangingPassword ? "Updating..." : "Update Password"}
+                                        </button>
+
+                                        <div className="flex gap-3 p-4 bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/20 rounded-2xl">
+                                            <AlertCircle className="text-amber-600 shrink-0" size={18} />
+                                            <p className="text-[11px] leading-relaxed text-amber-800 dark:text-amber-400 font-medium">
+                                                For better security, your password should be at least 8 characters long and include a mix of uppercase letters, numbers, and symbols.
+                                            </p>
+                                        </div>
+                                    </form>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </div>
                 </div>
             </div>
         </div>
